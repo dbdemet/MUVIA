@@ -1,0 +1,281 @@
+[
+  {
+    "id": 1777905340598,
+    "name": "Faculty of Education",
+    "nameEn": "Faculty of Education",
+    "category": "Faculty",
+    "lat": 37.16563560391199,
+    "lng": 28.373674809782244,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777905432084,
+    "name": "Faculty of Technology",
+    "nameEn": "Faculty of Technology",
+    "category": "Faculty",
+    "lat": 37.166038323480386,
+    "lng": 28.37289417531853,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777905469436,
+    "name": "Faculty of Engineering",
+    "nameEn": "Faculty of Engineering",
+    "category": "Faculty",
+    "lat": 37.16136952978993,
+    "lng": 28.376743666643833,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777905510167,
+    "name": "University Library",
+    "nameEn": "University Library",
+    "category": "Academic",
+    "lat": 37.163442074393686,
+    "lng": 28.37217158073808,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777905572700,
+    "name": "Coffemin",
+    "nameEn": "Coffemin",
+    "category": "Food",
+    "lat": 37.16259974220429,
+    "lng": 28.375438084807232,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777905661246,
+    "name": "Faculty of Economics",
+    "nameEn": "Faculty of Economics",
+    "category": "Faculty",
+    "lat": 37.164586027967985,
+    "lng": 28.375130329273816,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777905700162,
+    "name": "Faculty of Tourism",
+    "nameEn": "Faculty of Tourism",
+    "category": "Faculty",
+    "lat": 37.16520260913275,
+    "lng": 28.377541370635853,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777905834948,
+    "name": "Sitki Kocman Student Union Building / Dining Hall",
+    "nameEn": "Sitki Kocman Student Union Building / Dining Hall",
+    "category": "Food",
+    "lat": 37.16525807421293,
+    "lng": 28.37652215356012,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777905899541,
+    "name": "Faculty of Foreign Languages",
+    "nameEn": "Faculty of Foreign Languages",
+    "category": "Faculty",
+    "lat": 37.169863121490465,
+    "lng": 28.374797474565938,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906047677,
+    "name": "Atatürk Cultural Center",
+    "nameEn": "Atatürk Cultural Center",
+    "category": "Social",
+    "lat": 37.165672841591885,
+    "lng": 28.370626483071028,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906109846,
+    "name": "Office of the President",
+    "nameEn": "Office of the President",
+    "category": "Faculty",
+    "lat": 37.16421565025487,
+    "lng": 28.37087383864158,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906163232,
+    "name": "Research Labarotary Center",
+    "nameEn": "Research Labarotary Center",
+    "category": "Faculty",
+    "lat": 37.162170975106626,
+    "lng": 28.369125380994394,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906223541,
+    "name": "MSKU Turkish House Restaurant",
+    "nameEn": "MSKU Turkish House Restaurant",
+    "category": "Food",
+    "lat": 37.16473330387197,
+    "lng": 28.372417248684787,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906271220,
+    "name": "Faculty of Fine Arts",
+    "nameEn": "Faculty of Fine Arts",
+    "category": "Faculty",
+    "lat": 37.16580118069593,
+    "lng": 28.37733286980522,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906350876,
+    "name": "Faculty of Theology ",
+    "nameEn": "Faculty of Theology ",
+    "category": "Faculty",
+    "lat": 37.165052390467494,
+    "lng": 28.378147818072286,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906601876,
+    "name": "Faculty of Education Stop",
+    "nameEn": "Faculty of Education Stop",
+    "category": "Transport",
+    "lat": 37.16625180324111,
+    "lng": 28.373413804418245,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906745525,
+    "name": "Department of Informatics",
+    "nameEn": "Department of Informatics",
+    "category": "Faculty",
+    "lat": 37.16307346865536,
+    "lng": 28.37397072477347,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906794781,
+    "name": "Faculty of Medicine",
+    "nameEn": "Faculty of Medicine",
+    "category": "Faculty",
+    "lat": 37.16279685700078,
+    "lng": 28.36513216806947,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906826031,
+    "name": "Faculty of Health Sciences",
+    "nameEn": "Faculty of Health Sciences",
+    "category": "Faculty",
+    "lat": 37.162940421085544,
+    "lng": 28.363149046810538,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906899586,
+    "name": "Science and Literature Classrooms",
+    "nameEn": "Science and Literature Classrooms",
+    "category": "Faculty",
+    "lat": 37.16362467176155,
+    "lng": 28.37378640838956,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906932122,
+    "name": "Faculty of Science",
+    "nameEn": "Faculty of Science",
+    "category": "Faculty",
+    "lat": 37.163274222942476,
+    "lng": 28.373558743140944,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777906972976,
+    "name": "Court",
+    "nameEn": "Court",
+    "category": "Sports",
+    "lat": 37.16227585439629,
+    "lng": 28.37575603102531,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907013238,
+    "name": "Stadium",
+    "nameEn": "Stadium",
+    "category": "Sports",
+    "lat": 37.16871370710601,
+    "lng": 28.376174058981956,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907077329,
+    "name": "MSKU Education and Research Hospital",
+    "nameEn": "MSKU Education and Research Hospital",
+    "category": "Health",
+    "lat": 37.164762474544155,
+    "lng": 28.366438302811748,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907118942,
+    "name": "Faculty of Literature",
+    "nameEn": "Faculty of Literature",
+    "category": "Faculty",
+    "lat": 37.16409824125342,
+    "lng": 28.373787537306317,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907186011,
+    "name": "Faculty of Architecture",
+    "nameEn": "Faculty of Architecture",
+    "category": "Faculty",
+    "lat": 37.17085326887561,
+    "lng": 28.374629918479492,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907267159,
+    "name": "Faculty of Sports Sciences",
+    "nameEn": "Faculty of Sports Sciences",
+    "category": "Faculty",
+    "lat": 37.16736157089878,
+    "lng": 28.374722663738726,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907315838,
+    "name": "Faculty of Aquatic Sciences",
+    "nameEn": "Faculty of Aquatic Sciences",
+    "category": "Faculty",
+    "lat": 37.17134456357416,
+    "lng": 28.37376574424888,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907366932,
+    "name": "Student Dormitary Stop",
+    "nameEn": "Student Dormitary Stop",
+    "category": "Transport",
+    "lat": 37.171586579321996,
+    "lng": 28.375460027934828,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907406761,
+    "name": "Engineering Faculty Stop",
+    "nameEn": "Engineering Faculty Stop",
+    "category": "Transport",
+    "lat": 37.16276109415298,
+    "lng": 28.374537441595262,
+    "description": "Added by setup mode"
+  },
+  {
+    "id": 1777907465531,
+    "name": "Indoor Swimming pool",
+    "nameEn": "Indoor Swimming pool",
+    "category": "Sports",
+    "lat": 37.167321002725274,
+    "lng": 28.377518289087902,
+    "description": "Added by setup mode"
+  }
+]

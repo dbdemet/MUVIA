@@ -1,0 +1,637 @@
+{
+  "userProfiles": {
+    "demetbolat2@posta.mu.edu.tr": {
+      "id": "s-demetbolat",
+      "role": "student",
+      "name": "Demetbolat",
+      "email": "demetbolat2@posta.mu.edu.tr",
+      "studentId": "22807434",
+      "department": "Primary Education",
+      "faculty": "Faculty of Education",
+      "year": 3,
+      "gpa": 3.9,
+      "interests": [
+        "AI",
+        "Web Development"
+      ],
+      "enrolledCourses": [
+        "EDU101",
+        "EDU201",
+        "PSY101"
+      ],
+      "accessibility": {
+        "largeText": false,
+        "highContrast": false,
+        "reducedMotion": false,
+        "screenReaderOptimized": false,
+        "dyslexiaFont": false,
+        "colorBlindMode": "none",
+        "textToSpeech": false,
+        "increasedTouchTargets": false,
+        "language": "tr",
+        "fontSizeScale": 1,
+        "autoReadNotifications": false
+      },
+      "joinedClubs": [
+        "club-ai",
+        "club-hike"
+      ],
+      "lastActiveAt": "2026-05-04T22:41:51.246Z"
+    },
+    "ayseyilmaz@posta.mu.edu.tr": {
+      "id": "s-ayseyilmaz",
+      "role": "student",
+      "name": "Ayseyilmaz",
+      "email": "ayseyilmaz@posta.mu.edu.tr",
+      "studentId": "22741571",
+      "department": "Business Administration",
+      "faculty": "Faculty of Economics and Administrative Sciences",
+      "year": 4,
+      "gpa": 3.6,
+      "interests": [
+        "AI",
+        "Web Development"
+      ],
+      "enrolledCourses": [
+        "CS302",
+        "CS305",
+        "CS304"
+      ],
+      "accessibility": {
+        "largeText": false,
+        "highContrast": false,
+        "reducedMotion": false,
+        "screenReaderOptimized": false,
+        "dyslexiaFont": false,
+        "colorBlindMode": "none",
+        "textToSpeech": false,
+        "increasedTouchTargets": false,
+        "language": "tr",
+        "fontSizeScale": 1,
+        "autoReadNotifications": false
+      },
+      "joinedClubs": [],
+      "lastActiveAt": "2026-05-03T22:01:18.390Z"
+    },
+    "aliatay4@posta.mu.edu.tr": {
+      "id": "s-aliatay",
+      "role": "student",
+      "name": "Aliatay",
+      "email": "aliatay4@posta.mu.edu.tr",
+      "studentId": "22811290",
+      "department": "Civil Engineering",
+      "faculty": "Faculty of Engineering",
+      "year": 3,
+      "gpa": 3.5,
+      "interests": [
+        "AI",
+        "Web Development"
+      ],
+      "enrolledCourses": [
+        "CVE101",
+        "CVE202",
+        "MAT101"
+      ],
+      "accessibility": {
+        "largeText": false,
+        "highContrast": false,
+        "reducedMotion": false,
+        "screenReaderOptimized": false,
+        "dyslexiaFont": false,
+        "colorBlindMode": "none",
+        "textToSpeech": false,
+        "increasedTouchTargets": false,
+        "language": "tr",
+        "fontSizeScale": 1,
+        "autoReadNotifications": false
+      },
+      "joinedClubs": [
+        "club-ai"
+      ],
+      "lastActiveAt": "2026-05-05T07:55:05.695Z"
+    }
+  },
+  "complaints": [
+    {
+      "id": "cid1002",
+      "studentId": "s-aliatay",
+      "studentName": "Aliatay",
+      "faculty": "Faculty of Engineering",
+      "category": "General",
+      "subject": "wifi issue",
+      "description": "There is a loss of internnet connection in Enginering lab B2B07.",
+      "email": "aliatay4@posta.mu.edu.tr",
+      "studentEmail": "aliatay4@posta.mu.edu.tr",
+      "status": "pending",
+      "submittedAt": "2026-05-04T12:40:58.422Z",
+      "lastUpdatedAt": "2026-05-04T12:40:58.422Z",
+      "response": "",
+      "respondedAt": "",
+      "respondedBy": "",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Talep alındı ve ön değerlendirme kuyruğuna eklendi.",
+          "actor": "System",
+          "at": "2026-05-04T12:40:58.422Z"
+        }
+      ]
+    },
+    {
+      "id": "cid1001",
+      "studentId": "s-aliatay",
+      "studentName": "Aliatay",
+      "faculty": "Faculty of Engineering",
+      "category": "General",
+      "subject": "broken bench",
+      "description": "There is a broken bench in front of the Science Faculty garden.",
+      "email": "aliatay4@posta.mu.edu.tr",
+      "studentEmail": "aliatay4@posta.mu.edu.tr",
+      "status": "pending",
+      "submittedAt": "2026-05-04T13:53:44.108Z",
+      "lastUpdatedAt": "2026-05-04T13:53:44.108Z",
+      "response": "",
+      "respondedAt": "",
+      "respondedBy": "",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Talep alındı ve ön değerlendirme kuyruğuna eklendi.",
+          "actor": "System",
+          "at": "2026-05-04T13:53:44.108Z"
+        }
+      ]
+    },
+    {
+      "id": "cid1002",
+      "studentId": "s-aliatay",
+      "studentName": "Aliatay",
+      "faculty": "Faculty of Engineering",
+      "category": "General",
+      "subject": "Bad smell from the toilet",
+      "description": "There is a smell coming from the man's toilet Faculty of Informatics on the second floor.",
+      "email": "aliatay4@posta.mu.edu.tr",
+      "studentEmail": "aliatay4@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-04T22:06:13.754Z",
+      "lastUpdatedAt": "2026-05-04T22:06:14.776Z",
+      "response": "Processing started by Faculty Student Affairs Coordinator.",
+      "respondedAt": "2026-05-04T22:06:14.776Z",
+      "respondedBy": "Faculty Student Affairs Coordinator",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-04T22:06:13.755Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to Faculty Student Affairs.",
+          "actor": "Triage Engine",
+          "at": "2026-05-04T22:06:13.766Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by Faculty Student Affairs Coordinator.",
+          "actor": "Faculty Student Affairs Coordinator",
+          "at": "2026-05-04T22:06:14.776Z"
+        }
+      ],
+      "routedUnitKey": "Academic",
+      "routedUnit": "Faculty Student Affairs",
+      "facultyUnit": "Faculty of Engineering Dean's Office / Student Affairs",
+      "managerName": "Faculty Student Affairs Coordinator",
+      "priority": "medium",
+      "triageSummary": "Academic issue. Routed to Faculty of Engineering Dean's Office / Student Affairs.",
+      "actionPlan": [
+        "Initial review — Faculty of Engineering Dean's Office / Student Affairs notified.",
+        "Final responsible unit: Faculty Student Affairs",
+        "Resolution tracking started."
+      ],
+      "escalationChain": [
+        "Faculty of Engineering Dean's Office / Student Affairs"
+      ],
+      "llmConfidence": 0.6,
+      "needsManualReview": false,
+      "routingSource": "heuristic"
+    },
+    {
+      "id": "cid1003",
+      "studentId": "s-demetbolat",
+      "studentName": "Demetbolat",
+      "faculty": "Faculty of Education",
+      "category": "General",
+      "subject": "bad smell",
+      "description": "There is a bad smell coming from the man's toilet second floor in the Faculty of Engineering.",
+      "email": "demetbolat2@posta.mu.edu.tr",
+      "studentEmail": "demetbolat2@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-04T22:18:02.348Z",
+      "lastUpdatedAt": "2026-05-04T22:18:03.356Z",
+      "response": "Processing started by Faculty Student Affairs Coordinator.",
+      "respondedAt": "2026-05-04T22:18:03.356Z",
+      "respondedBy": "Faculty Student Affairs Coordinator",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-04T22:18:02.348Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to Faculty Student Affairs.",
+          "actor": "Triage Engine",
+          "at": "2026-05-04T22:18:02.351Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by Faculty Student Affairs Coordinator.",
+          "actor": "Faculty Student Affairs Coordinator",
+          "at": "2026-05-04T22:18:03.356Z"
+        }
+      ],
+      "routedUnitKey": "Academic",
+      "routedUnit": "Faculty Student Affairs",
+      "facultyUnit": "Faculty of Education Dean's Office / Student Affairs",
+      "managerName": "Faculty Student Affairs Coordinator",
+      "priority": "medium",
+      "triageSummary": "Academic issue. Routed to Faculty of Education Dean's Office / Student Affairs.",
+      "actionPlan": [
+        "Initial review — Faculty of Education Dean's Office / Student Affairs notified.",
+        "Final responsible unit: Faculty Student Affairs",
+        "Resolution tracking started."
+      ],
+      "escalationChain": [
+        "Faculty of Education Dean's Office / Student Affairs"
+      ],
+      "llmConfidence": 0.6,
+      "needsManualReview": false,
+      "routingSource": "heuristic"
+    },
+    {
+      "id": "cid1004",
+      "studentId": "s-demetbolat",
+      "studentName": "Demetbolat",
+      "faculty": "Faculty of Education",
+      "category": "General",
+      "subject": "Wifi issue",
+      "description": "There is so bad internet connection Faculty of Informatics .",
+      "email": "demetbolat2@posta.mu.edu.tr",
+      "studentEmail": "demetbolat2@posta.mu.edu.tr",
+      "status": "escalated",
+      "submittedAt": "2026-05-04T22:40:20.565Z",
+      "lastUpdatedAt": "2026-05-04T22:41:51.246Z",
+      "response": "Student marked issue as unresolved. Escalated to higher administration.",
+      "respondedAt": "2026-05-04T22:41:51.246Z",
+      "respondedBy": "System",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-04T22:40:20.565Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to MSKU IT Department.",
+          "actor": "Triage Engine",
+          "at": "2026-05-04T22:40:20.570Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by IT Coordinator.",
+          "actor": "IT Coordinator",
+          "at": "2026-05-04T22:40:21.584Z"
+        },
+        {
+          "status": "feedback_received",
+          "note": "Student rated resolution 2 stars. Note: this issue not solved.",
+          "actor": "Student",
+          "at": "2026-05-04T22:41:51.246Z"
+        },
+        {
+          "status": "escalated",
+          "note": "Student marked issue as unresolved. Escalated to higher administration.",
+          "actor": "System",
+          "at": "2026-05-04T22:41:51.246Z"
+        }
+      ],
+      "routedUnitKey": "IT",
+      "routedUnit": "MSKU IT Department",
+      "facultyUnit": "Faculty of Education Dean's Office / Student Affairs",
+      "managerName": "IT Coordinator",
+      "priority": "high",
+      "triageSummary": "Technical issue detected. Routed to Faculty first, then IT.",
+      "actionPlan": [
+        "Initial review — Faculty of Education Dean's Office / Student Affairs notified.",
+        "Final responsible unit: MSKU IT Department",
+        "Resolution tracking started."
+      ],
+      "escalationChain": [
+        "Faculty of Education Dean's Office / Student Affairs",
+        "MSKU IT Department"
+      ],
+      "llmConfidence": 0.6,
+      "needsManualReview": false,
+      "routingSource": "heuristic",
+      "rating": 2,
+      "feedback": "this issue not solved."
+    },
+    {
+      "id": "cid1007",
+      "studentId": "s-aliatay",
+      "studentName": "Aliatay",
+      "faculty": "Faculty of Engineering",
+      "category": "General",
+      "subject": "broken light",
+      "description": "There is a broken light near the MSKU Central Library.",
+      "email": "aliatay4@posta.mu.edu.tr",
+      "studentEmail": "aliatay4@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-04T23:25:47.455Z",
+      "lastUpdatedAt": "2026-05-04T23:25:48.470Z",
+      "response": "Processing started by Technical Services Lead.",
+      "respondedAt": "2026-05-04T23:25:48.470Z",
+      "respondedBy": "Technical Services Lead",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-04T23:25:47.455Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to Department of Construction and Technical Services.",
+          "actor": "Triage Engine",
+          "at": "2026-05-04T23:25:47.462Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by Technical Services Lead.",
+          "actor": "Technical Services Lead",
+          "at": "2026-05-04T23:25:48.470Z"
+        }
+      ],
+      "routedUnitKey": "Infrastructure",
+      "routedUnit": "Department of Construction and Technical Services",
+      "facultyUnit": "Faculty of Engineering Dean's Office / Student Affairs",
+      "managerName": "Technical Services Lead",
+      "priority": "high",
+      "triageSummary": "Infrastructure issue detected. Routed to Faculty first, then Technical Services.",
+      "actionPlan": [
+        "Initial review — Faculty of Engineering Dean's Office / Student Affairs notified.",
+        "Final responsible unit: Department of Construction and Technical Services",
+        "Resolution tracking started."
+      ],
+      "escalationChain": [
+        "Faculty of Engineering Dean's Office / Student Affairs",
+        "Construction and Technical Services"
+      ],
+      "llmConfidence": 0.6,
+      "needsManualReview": false,
+      "routingSource": "heuristic"
+    },
+    {
+      "id": "cid1008",
+      "studentId": "s-aliatay",
+      "studentName": "Aliatay",
+      "faculty": "Faculty of Engineering",
+      "category": "General",
+      "subject": "broken window",
+      "description": "There is a broken window in 2nd floor Faculty of Science.",
+      "email": "aliatay4@posta.mu.edu.tr",
+      "studentEmail": "aliatay4@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-04T23:27:36.074Z",
+      "lastUpdatedAt": "2026-05-04T23:27:37.083Z",
+      "response": "Processing started by Technical Services Lead.",
+      "respondedAt": "2026-05-04T23:27:37.083Z",
+      "respondedBy": "Technical Services Lead",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-04T23:27:36.074Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to Department of Construction and Technical Services.",
+          "actor": "Triage Engine",
+          "at": "2026-05-04T23:27:36.078Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by Technical Services Lead.",
+          "actor": "Technical Services Lead",
+          "at": "2026-05-04T23:27:37.083Z"
+        }
+      ],
+      "routedUnitKey": "Infrastructure",
+      "routedUnit": "Department of Construction and Technical Services",
+      "facultyUnit": "Faculty of Engineering Dean's Office / Student Affairs",
+      "managerName": "Technical Services Lead",
+      "priority": "high",
+      "triageSummary": "Infrastructure issue detected. Routed to Faculty first, then Technical Services.",
+      "actionPlan": [
+        "Initial review — Faculty of Engineering Dean's Office / Student Affairs notified.",
+        "Final responsible unit: Department of Construction and Technical Services",
+        "Resolution tracking started."
+      ],
+      "escalationChain": [
+        "Faculty of Engineering Dean's Office / Student Affairs",
+        "Construction and Technical Services"
+      ],
+      "llmConfidence": 0.6,
+      "needsManualReview": false,
+      "routingSource": "heuristic"
+    },
+    {
+      "id": "cid1009",
+      "studentId": "s-aliatay",
+      "studentName": "Aliatay",
+      "faculty": "Faculty of Engineering",
+      "category": "General",
+      "subject": "broken door",
+      "description": "there is a broken door in the second floor at the Faculty of Education.",
+      "email": "aliatay4@posta.mu.edu.tr",
+      "studentEmail": "aliatay4@posta.mu.edu.tr",
+      "status": "pending",
+      "submittedAt": "2026-05-04T23:47:31.757Z",
+      "lastUpdatedAt": "2026-05-04T23:47:31.757Z",
+      "response": "",
+      "respondedAt": "",
+      "respondedBy": "",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-04T23:47:31.757Z"
+        }
+      ]
+    },
+    {
+      "id": "cid1001",
+      "studentId": "s-aliatay",
+      "studentName": "Aliatay",
+      "faculty": "Faculty of Engineering",
+      "category": "General",
+      "subject": "bad smell",
+      "description": "There is a bad smell man's toilet in Faculty of Engineering .",
+      "email": "aliatay4@posta.mu.edu.tr",
+      "studentEmail": "aliatay4@posta.mu.edu.tr",
+      "status": "pending",
+      "submittedAt": "2026-05-05T07:56:18.141Z",
+      "lastUpdatedAt": "2026-05-05T07:56:18.141Z",
+      "response": "",
+      "respondedAt": "",
+      "respondedBy": "",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-05T07:56:18.141Z"
+        }
+      ]
+    }
+  ],
+  "communityPosts": [
+    {
+      "id": "post1",
+      "authorName": "Campus Team",
+      "authorEmail": "team@muvia.app",
+      "content": "Welcome to the new MUVIA community feed!",
+      "tags": [
+        "announcement"
+      ],
+      "createdAt": "2026-05-03T18:51:02.992Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msgid1001",
+      "fromId": "s-aliatay",
+      "fromName": "Aliatay",
+      "fromRole": "student",
+      "toId": "a3",
+      "toName": "Prof. Ali Yilmaz",
+      "toRole": "academic",
+      "content": "Could we meet to discuss my project?",
+      "timestamp": "2026-05-04T12:19:42.848Z",
+      "read": false
+    },
+    {
+      "id": "msgid1005",
+      "fromId": "system",
+      "toId": "s-demetbolat",
+      "fromName": "MUVIA System",
+      "toName": "Demetbolat",
+      "content": "Your feedback for request cid1004 has been received. Thank you — the team will follow up.",
+      "timestamp": "2026-05-04T22:41:51.246Z",
+      "read": false
+    },
+    {
+      "id": "msgid1006",
+      "fromId": "s-demetbolat",
+      "toId": "IT Coordinator",
+      "fromName": "Demetbolat",
+      "toName": "IT Coordinator",
+      "content": "Feedback received for cid1004: 2 stars. Note: this issue not solved.",
+      "timestamp": "2026-05-04T22:41:51.246Z",
+      "read": false
+    }
+  ],
+  "clubMessages": {},
+  "clubMembers": {
+    "club-ai": [
+      {
+        "name": "Ahmet Kaya",
+        "email": "ahmet.kaya@posta.mu.edu.tr",
+        "role": "President"
+      }
+    ],
+    "club-hike": [
+      {
+        "name": "Zeynep Demir",
+        "email": "zeynep.demir@posta.mu.edu.tr",
+        "role": "President"
+      }
+    ],
+    "club-career": [
+      {
+        "name": "Can Yilmaz",
+        "email": "can.yilmaz@posta.mu.edu.tr",
+        "role": "President"
+      }
+    ]
+  },
+  "sportsBoard": [
+    {
+      "id": "sp1001",
+      "title": "Swimming Course",
+      "sport": "General",
+      "type": "participant",
+      "description": "There will be a lesson for beginners on Tuesday and Thursday.",
+      "contact": "aliatay4@posta.mu.edu.tr",
+      "contactName": "Aliatay",
+      "slots": 6,
+      "date": "2026-05-04",
+      "createdAt": "2026-05-04T22:03:00.608Z"
+    },
+    {
+      "id": "sp1",
+      "title": "Football Match - Need 3 Players",
+      "sport": "Football",
+      "type": "teammate",
+      "description": "Saturday 4pm at campus field. Need 3 more for 7v7.",
+      "contact": "emre@posta.mu.edu.tr",
+      "contactName": "Emre B.",
+      "slots": 3,
+      "date": "2026-05-10",
+      "createdAt": "2026-05-03T18:51:02.993Z"
+    },
+    {
+      "id": "sp2",
+      "title": "Tennis Lessons - Beginners Welcome",
+      "sport": "Tennis",
+      "type": "trainee",
+      "description": "Free tennis lessons every Wednesday 10am. All levels.",
+      "contact": "coach@mu.edu.tr",
+      "contactName": "Sports Center",
+      "slots": 8,
+      "date": "2026-05-07",
+      "createdAt": "2026-05-03T18:51:02.993Z"
+    },
+    {
+      "id": "sp3",
+      "title": "Basketball Team Tryouts",
+      "sport": "Basketball",
+      "type": "participant",
+      "description": "University basketball team tryouts. Must be enrolled student.",
+      "contact": "sports@mu.edu.tr",
+      "contactName": "Athletics Dept",
+      "slots": 5,
+      "date": "2026-05-12",
+      "createdAt": "2026-05-03T18:51:02.993Z"
+    }
+  ],
+  "eventFeedbacks": {},
+  "eventCheckins": {},
+  "eventCheckouts": {},
+  "announcements": [
+    {
+      "id": "an1",
+      "title": "Library Extended Hours",
+      "content": "Main library is open longer this month.",
+      "author": "MUVIA Administration",
+      "authorRole": "university",
+      "timestamp": "2026-05-01T10:00:00",
+      "icon": "📚"
+    }
+  ]
+}
