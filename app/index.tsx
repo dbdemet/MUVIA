@@ -5,30 +5,28 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const [counts, setCounts] = useState({ students: 0, faculties: 0, staff: 0, area: 0 });
+  const [counts, setCounts] = useState({ students: 0, faculties: 0, staff: 0 });
 
   useEffect(() => {
     const targets = { students: 18500, faculties: 14, staff: 650 };
-    const duration = 1500;
-    const start = Date.now();
-    let raf = 0;
-
-    const tick = () => {
-      const t = Math.min(1, (Date.now() - start) / duration);
+    const steps = 24;
+    let step = 0;
+    const timer = setInterval(() => {
+      step += 1;
+      const t = Math.min(1, step / steps);
       setCounts({
         students: Math.round(targets.students * t),
         faculties: Math.round(targets.faculties * t),
         staff: Math.round(targets.staff * t),
       });
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
+      if (t >= 1) clearInterval(timer);
+    }, 60);
 
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => clearInterval(timer);
   }, []);
   return (
     <ImageBackground
-      source={require('../assets/university/campus.png')}
+      source={require('../assets/university/campus-optimized.jpg')}
       style={st.bgImage}
       imageStyle={st.bgImageStyle}
       resizeMode="cover"

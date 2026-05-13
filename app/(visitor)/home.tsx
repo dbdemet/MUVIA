@@ -81,7 +81,7 @@ function HomeTab({ onTab, router }: any) {
         <TouchableOpacity style={st.signInBtn} onPress={() => router.replace('/')}><Text style={st.signInTxt}>Sign In</Text></TouchableOpacity>
       </View>
       <TouchableOpacity style={st.wizardBtn} onPress={() => setWizardVisible(true)}>
-        <Text style={st.wizardTxt}>🎓 İlk kez mi geldiniz? →</Text>
+        <Text style={st.wizardTxt}>🎓 First time visiting? →</Text>
       </TouchableOpacity>
       <View style={st.infoBanner}><Text style={{ fontSize: 16 }}>ℹ️</Text><Text style={st.infoBannerTxt}>You're in visitor mode. Sign in for academic features.</Text></View>
       <Text style={st.sectionTitle}>Quick Access</Text>
@@ -182,58 +182,132 @@ function EventsTab({ onRemind, reminders }: any) {
 }
 
 function WizardModal({ visible, step, choice, onClose, setStep, setChoice, onTab }: any) {
-  const BUILDINGS: Record<string, any[]> = {
-    'Kayıt': [{name:'Registrar Office', id:101},{name:'Student Affairs', id:102}],
-    'Sınav': [{name:'Exam Hall A', id:201},{name:'Exam Hall B', id:202}],
-    'Kampüs Turu': [{name:'Main Gate', id:301},{name:'Library', id:302}],
-    'Otopark': [{name:'North Parking', id:401},{name:'South Parking', id:402}]
+  const PURPOSES: { key: string; icon: string; label: string; desc: string }[] = [
+    { key: 'registration', icon: '📋', label: 'Registration', desc: 'Enrollment & student affairs' },
+    { key: 'examination', icon: '📝', label: 'Examination', desc: 'Exam halls & schedules' },
+    { key: 'tour', icon: '🏛️', label: 'Campus Tour', desc: 'Explore the campus' },
+    { key: 'parking', icon: '🅿️', label: 'Parking', desc: 'Find a parking spot' },
+  ];
+
+  const BUILDINGS: Record<string, { name: string; desc: string }[]> = {
+    'registration': [{ name: 'Registrar Office', desc: 'Main building, ground floor' }, { name: 'Student Affairs', desc: 'Administration building, 2nd floor' }],
+    'examination': [{ name: 'Exam Hall A', desc: 'Engineering Faculty, Block C' }, { name: 'Exam Hall B', desc: 'Science Faculty, Block A' }],
+    'tour': [{ name: 'Main Gate (Entrance)', desc: 'Start of the campus tour route' }, { name: 'Central Library', desc: 'Main campus library & study areas' }, { name: 'Student Center', desc: 'Dining, clubs & social hub' }],
+    'parking': [{ name: 'North Parking Lot', desc: 'Near Engineering Faculty — 200 spots' }, { name: 'South Parking Lot', desc: 'Near Student Center — 150 spots' }],
   };
+
+  const TIPS: Record<string, string[]> = {
+    'registration': ['Bring your ID and documents.', 'Registrar hours: 08:30 – 17:00 (Mon–Fri).', 'Student Affairs closes at 16:30.'],
+    'examination': ['Check your exam room assignment on SABIS.', 'Arrive at least 15 minutes early.', 'No electronic devices in exam halls.'],
+    'tour': ['The full campus tour takes about 45 minutes on foot.', 'Free Wi-Fi is available across campus.', 'Visit the cafeteria for affordable meals.'],
+    'parking': ['Parking fee: ₺20/day for visitors.', 'North lot fills up by 09:00 on weekdays.', 'Accessible parking available near all buildings.'],
+  };
+
+  const stepLabels = ['Purpose', 'Locations', 'Navigate', 'Tips'];
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={{ flex:1, backgroundColor:'rgba(0,0,0,0.5)', justifyContent:'center', padding:20 }}>
-        <View style={{ backgroundColor:'#FFF', borderRadius:16, padding:16 }}>
-          <Text style={{ fontSize:16, fontWeight:'800', color:'#2D3748', marginBottom:8 }}>Hoşgeldiniz — Ziyaretçi Yönlendirme</Text>
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 }}>
+        <View style={{ backgroundColor: '#FFF', borderRadius: 20, padding: 20 }}>
+          {/* Header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Text style={{ fontSize: 17, fontWeight: '800', color: '#2D3748' }}>🎓 Visitor Guide</Text>
+            <TouchableOpacity onPress={() => { setStep(1); setChoice(null); onClose(); }} style={{ padding: 4 }}><Text style={{ fontSize: 18 }}>✕</Text></TouchableOpacity>
+          </View>
+
+          {/* Progress bar */}
+          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 16 }}>
+            {stepLabels.map((lbl, i) => (
+              <View key={i} style={{ flex: 1, alignItems: 'center', gap: 4 }}>
+                <View style={{ height: 4, width: '100%', borderRadius: 2, backgroundColor: step >= i + 1 ? '#2D3748' : '#E2E8F0' }} />
+                <Text style={{ fontSize: 9, color: step >= i + 1 ? '#2D3748' : '#A0AEC0', fontWeight: '600' }}>{lbl}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Step 1: Purpose */}
           {step === 1 && (
             <View>
-              <Text style={{ marginBottom:8 }}>Ne için geldiniz?</Text>
-              {['Kayıt','Sınav','Kampüs Turu','Otopark'].map(opt => (
-                <TouchableOpacity key={opt} style={{ padding:12, borderRadius:10, backgroundColor: choice===opt ? '#2D3748' : '#F7FAFC', marginBottom:8 }} onPress={() => setChoice(opt)}>
-                  <Text style={{ color: choice===opt ? '#FFF' : '#1A202C', fontWeight:'700' }}>{opt}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#2D3748', marginBottom: 10 }}>What brings you to campus?</Text>
+              {PURPOSES.map(opt => (
+                <TouchableOpacity key={opt.key} style={{ flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, backgroundColor: choice === opt.key ? '#2D3748' : '#F7FAFC', marginBottom: 8, gap: 12, borderWidth: 1, borderColor: choice === opt.key ? '#2D3748' : '#E2E8F0' }} onPress={() => setChoice(opt.key)}>
+                  <Text style={{ fontSize: 22 }}>{opt.icon}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: choice === opt.key ? '#FFF' : '#1A202C', fontWeight: '700', fontSize: 14 }}>{opt.label}</Text>
+                    <Text style={{ color: choice === opt.key ? 'rgba(255,255,255,0.7)' : '#718096', fontSize: 11 }}>{opt.desc}</Text>
+                  </View>
+                  {choice === opt.key && <Text style={{ color: '#FFF', fontSize: 16 }}>✓</Text>}
                 </TouchableOpacity>
               ))}
             </View>
           )}
+
+          {/* Step 2: Relevant buildings */}
           {step === 2 && (
             <View>
-              <Text style={{ marginBottom:8 }}>İlgili binalar</Text>
-              {(BUILDINGS[choice || 'Kayıt'] || []).map(b => (
-                <View key={b.id} style={{ flexDirection:'row', justifyContent:'space-between', padding:8, borderRadius:8, backgroundColor:'#F7FAFC', marginBottom:6 }}>
-                  <Text>{b.name}</Text>
-                  <TouchableOpacity onPress={() => { onTab('map'); onClose(); }} style={{ backgroundColor:'#2D3748', paddingHorizontal:10, paddingVertical:6, borderRadius:8 }}><Text style={{ color:'#fff' }}>Haritada Göster</Text></TouchableOpacity>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#2D3748', marginBottom: 10 }}>Relevant Locations</Text>
+              {(BUILDINGS[choice || 'registration'] || []).map((b, i) => (
+                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, borderRadius: 12, backgroundColor: '#F7FAFC', marginBottom: 8, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontWeight: '700', color: '#1A202C', fontSize: 13 }}>{b.name}</Text>
+                    <Text style={{ color: '#718096', fontSize: 11 }}>{b.desc}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => { onTab('map'); onClose(); setStep(1); setChoice(null); }} style={{ backgroundColor: '#2D3748', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 }}>
+                    <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '700' }}>📍 Show on Map</Text>
+                  </TouchableOpacity>
                 </View>
               ))}
             </View>
           )}
+
+          {/* Step 3: Navigation */}
           {step === 3 && (
             <View>
-              <Text style={{ marginBottom:8 }}>Rota çizmek ister misiniz?</Text>
-              <TouchableOpacity style={{ padding:12, borderRadius:10, backgroundColor:'#E6FFFA' }} onPress={() => { onTab('map'); onClose(); }}><Text style={{ fontWeight:'700' }}>Rota Çiz</Text></TouchableOpacity>
-            </View>
-          )}
-          {step === 4 && (
-            <View>
-              <Text style={{ marginBottom:8 }}>Önemli Notlar</Text>
-              <Text style={{ color:'#718096', fontSize:13 }}>Çalışma saatleri: 08:00 - 20:00. Otopark ücretlidir. Kütüphane kart gerekir.</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#2D3748', marginBottom: 10 }}>Need Directions?</Text>
+              <Text style={{ color: '#718096', fontSize: 13, marginBottom: 14, lineHeight: 20 }}>Use our interactive campus map to plan your route. You can choose walking, driving, or bus mode.</Text>
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 14, borderRadius: 12, backgroundColor: '#2D3748', gap: 8 }} onPress={() => { onTab('map'); onClose(); setStep(1); setChoice(null); }}>
+                <Text style={{ fontSize: 18 }}>🗺️</Text>
+                <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 14 }}>Open Campus Map</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 14, borderRadius: 12, backgroundColor: '#EBF4FF', gap: 8, marginTop: 8 }} onPress={() => { onTab('assistant'); onClose(); setStep(1); setChoice(null); }}>
+                <Text style={{ fontSize: 18 }}>🤖</Text>
+                <Text style={{ color: '#2A69AC', fontWeight: '700', fontSize: 14 }}>Ask AI Assistant</Text>
+              </TouchableOpacity>
             </View>
           )}
 
-          <View style={{ flexDirection:'row', justifyContent:'space-between', marginTop:12 }}>
-            <TouchableOpacity onPress={() => setStep(Math.max(1, step-1))} style={{ padding:10 }}><Text style={{ color:'#718096' }}>Geri</Text></TouchableOpacity>
-            <View style={{ flexDirection:'row', gap:8 }}>
-              <TouchableOpacity onPress={() => { setStep(Math.min(4, step+1)); }} style={{ padding:10 }}><Text style={{ color:'#2D3748', fontWeight:'700' }}>İleri</Text></TouchableOpacity>
-              <TouchableOpacity onPress={() => { setStep(1); setChoice(null); onClose(); }} style={{ padding:10 }}><Text style={{ color:'#C53030' }}>Kapat</Text></TouchableOpacity>
+          {/* Step 4: Tips */}
+          {step === 4 && (
+            <View>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#2D3748', marginBottom: 10 }}>Important Tips</Text>
+              {(TIPS[choice || 'registration'] || []).map((tip, i) => (
+                <View key={i} style={{ flexDirection: 'row', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
+                  <Text style={{ color: '#2D3748', fontSize: 14 }}>•</Text>
+                  <Text style={{ color: '#4A5568', fontSize: 13, flex: 1, lineHeight: 20 }}>{tip}</Text>
+                </View>
+              ))}
+              <View style={{ backgroundColor: '#F0FFF4', borderRadius: 12, padding: 12, marginTop: 6 }}>
+                <Text style={{ color: '#276749', fontSize: 12, fontWeight: '600' }}>🕐 Campus hours: 08:00 – 22:00 daily</Text>
+                <Text style={{ color: '#276749', fontSize: 12, marginTop: 4 }}>📶 Free Wi-Fi: MSKU-Guest (no password)</Text>
+              </View>
             </View>
+          )}
+
+          {/* Navigation buttons */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
+            <TouchableOpacity onPress={() => { if (step > 1) setStep(step - 1); }} style={{ opacity: step === 1 ? 0.3 : 1, paddingVertical: 8, paddingHorizontal: 12 }} disabled={step === 1}>
+              <Text style={{ color: '#718096', fontWeight: '600' }}>← Back</Text>
+            </TouchableOpacity>
+            <Text style={{ color: '#A0AEC0', fontSize: 12 }}>{step} / 4</Text>
+            {step < 4 ? (
+              <TouchableOpacity onPress={() => { if (step === 1 && !choice) { Alert.alert('Select an option', 'Please choose your visit purpose first.'); return; } setStep(step + 1); }} style={{ backgroundColor: '#2D3748', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 10 }}>
+                <Text style={{ color: '#FFF', fontWeight: '700' }}>Next →</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={() => { setStep(1); setChoice(null); onClose(); }} style={{ backgroundColor: '#276749', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 10 }}>
+                <Text style={{ color: '#FFF', fontWeight: '700' }}>Done ✓</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </View>

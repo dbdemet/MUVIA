@@ -22,7 +22,7 @@ export default function StudentLoginScreen() {
     try {
       const res = await loginStudent(e);
       if (res?.success) {
-        login({ ...res.user, role: 'student' });
+        login({ ...res.user, name: formatDisplayNameFromEmail(e, res.user?.name || 'Student'), role: 'student' });
         router.replace('/(student)/home');
       } else {
         setError('Login failed. Please check your credentials.');

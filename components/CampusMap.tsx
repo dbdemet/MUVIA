@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Text, TextInput, ScrollView, Platfo
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
 import * as API from '../services/api';
+import * as Speech from 'expo-speech';
 
 interface CampusPoint {
   id: number; name: string; nameEn: string; category: Category;
@@ -93,6 +94,7 @@ const buildMapHTML = (points: CampusPoint[], fromCoord?: {lat: number, lng: numb
     font-size:12px; font-weight:600; cursor:pointer; border:none; width:100%;
   }
   .leaflet-popup-tip { background:#fff; }
+  .leaflet-routing-container { display:none !important; }
   .faculty-label {
     background: rgba(17, 24, 39, 0.92);
     border: 0;
@@ -111,6 +113,29 @@ const buildMapHTML = (points: CampusPoint[], fromCoord?: {lat: number, lng: numb
 <body>
 <div id="map"></div>
 <script>
+function parseHours(h){
+  // accepts formats like '08:00-21:00' or '08:00 - 21:00'
+  if(!h||typeof h!=='string') return null;
+  var m = h.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+  if(!m) return null;
+  return { open: m[1], close: m[2] };
+}
+function isOpenNow(hoursStr){
+  try{
+    var parsed = parseHours(hoursStr);
+    if(!parsed) return null;
+    var now = new Date();
+    var partsO = parsed.open.split(':');
+    var partsC = parsed.close.split(':');
+    var open = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(partsO[0],10), parseInt(partsO[1],10));
+    var close = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(partsC[0],10), parseInt(partsC[1],10));
+    if(close <= open) { // overnight range
+      if(now >= open) return true;
+      close = new Date(close.getTime() + 24*60*60*1000);
+    }
+    return now >= open && now <= close;
+  }catch(e){return null;}
+}
 var POINTS = ${pointsJson};
 var FROM_COORD = ${fromJson};
 var TO_COORD = ${toJson};
@@ -158,8 +183,13 @@ POINTS.forEach(function(p) {
   var m = L.marker([p.lat, p.lng], { icon:makeIcon(p.category, isFrom||isTo) }).addTo(map);
   var headerColor = CATEGORY_COLORS[p.category] || '#1A365D';
   var hoursHtml = p.hours ? '<span>🕐 '+p.hours+'</span>' : '';
+  var openBadge = '';
+  if(p.hours){
+    var openNow = isOpenNow(p.hours);
+    openBadge = '<div style="margin-top:6px;font-weight:700;display:inline-block;padding:6px 8px;border-radius:8px;color:#fff;background:'+ (openNow? '#2F855A':'#4A5568') +';font-size:12px">'+(openNow? 'Open Now':'Closed')+'</div>';
+  }
   m.bindPopup(
-    '<div><div class="popup-header" style="background:'+headerColor+'">'+(CATEGORY_ICONS[p.category]||'')+' '+p.name+'</div>'+
+    '<div><div class="popup-header" style="background:'+headerColor+'">'+(CATEGORY_ICONS[p.category]||'')+' '+p.name+' '+openBadge+'</div>'+
     '<div class="popup-body"><div class="popup-desc">'+p.description+'</div>'+
     '<div class="popup-meta">'+hoursHtml+'</div>'+
     '<button class="popup-btn" onclick="postNavigationMsg('+p.id+')">🧭 Directions</button>'+
@@ -209,6 +239,7 @@ map.on('click', function(e) {
   else window.parent.postMessage(msg, '*');
 });
 
+// when a route is found, extract human-readable steps and send to React Native
 if (FROM_COORD && TO_COORD) {
     L.Routing.control({
       waypoints: [
@@ -232,7 +263,24 @@ if (FROM_COORD && TO_COORD) {
         extendToWaypoints: true,
         missingRouteTolerance: 10
       }
-    }).addTo(map);
+    }).addTo(map).on('routesfound', function(e){
+      try{
+        var r = e.routes && e.routes[0];
+        var steps = [];
+        if(r && r.instructions && Array.isArray(r.instructions)){
+          steps = r.instructions.map(function(ins){ return ins.text || ins; });
+        } else if(r && r.routes && r.routes[0] && r.routes[0].instructions){
+          steps = r.routes[0].instructions.map(function(ins){ return ins.text || ins; });
+        } else if(r && r.waypoint_ranges){
+          // fallback: summarise
+          steps = [(r.summary && r.summary.totalDistance ? ('Distance: '+Math.round(r.summary.totalDistance)+' m') : 'Route calculated')];
+        }
+        var narrative = steps.join('. ');
+        var msg = JSON.stringify({ type: 'routeSteps', steps: steps, narrative: narrative, summary: r && r.summary ? r.summary : null });
+        if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(msg);
+        else window.parent.postMessage(msg, '*');
+      }catch(err){}
+    });
 }
 
 document.addEventListener('message', handleMsg);
@@ -282,6 +330,7 @@ export default function CampusMap({ userRole = 'student' }: Props) {
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [useMyLoc, setUseMyLoc] = useState(false);
   const [fromSearch, setFromSearch] = useState('');
+  const [toSearch, setToSearch] = useState('');
   const [routeResult, setRouteResult] = useState<any>(null);
   const [points, setPoints] = useState<CampusPoint[]>(CAMPUS_POINTS);
   const [mapHtml, setMapHtml] = useState(() => buildMapHTML(CAMPUS_POINTS));
@@ -291,30 +340,28 @@ export default function CampusMap({ userRole = 'student' }: Props) {
   const [setupLng, setSetupLng] = useState(0);
   const [setupName, setSetupName] = useState('');
   const [setupCat, setSetupCat] = useState<Category>('Faculty');
+  const [setupDesc, setSetupDesc] = useState('');
 
   useEffect(() => {
     API.getMapConfig().then((data: any) => {
       if (Array.isArray(data) && data.length > 0) {
         setPoints(data);
-        setMapHtml(buildMapHTML(data, undefined, undefined, 'walking', myLocation));
+        setMapHtml(buildMapHTML(data, undefined, undefined, 'walking', null));
       }
+    }).catch(() => {
+      console.warn('Failed to load map config');
     });
   }, []);
 
+  // Rebuild map when points change
   useEffect(() => {
-    let sub: any;
-    (async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') return;
-        sub = await Location.watchPositionAsync({ accuracy: Location.Accuracy.Highest, timeInterval: 2000, distanceInterval: 5 }, (loc) => {
-          const coords = { lat: loc.coords.latitude, lng: loc.coords.longitude };
-          setMyLocation(coords);
-          sendMsg({ type: 'userLocation', loc: coords });
-        });
-      } catch (e) {}
-    })();
-    return () => { if (sub && sub.remove) sub.remove(); };
+    if (points && points.length > 0) {
+      setMapHtml(buildMapHTML(points, undefined, undefined, 'walking', myLocation));
+    }
+  }, [points]);
+
+  useEffect(() => {
+    // Location tracking disabled
   }, []);
 
   const themeColor = userRole === 'academic' ? '#1A3A2A' : userRole === 'visitor' ? '#2D3748' : '#1A365D';
@@ -356,11 +403,22 @@ export default function CampusMap({ userRole = 'student' }: Props) {
   const handleWebViewMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      if (data.type === 'navigate') { setRouteFrom(undefined); setRouteTo(data.id); setShowRoutePanel(true); }
+      if (data.type === 'navigate') {
+        setRouteFrom(undefined);
+        setRouteTo(data.id);
+        const p = points.find(pt => pt.id === data.id);
+        if (p) setToSearch(p.name);
+        setShowRoutePanel(true);
+      }
+      if (data.type === 'routeSteps') {
+        setRouteResult((r: any) => ({ ...(r || {}), steps: data.steps, narrative: data.narrative, summary: data.summary }));
+        if (data.narrative) speakDirections(data.narrative);
+      }
       if (data.type === 'mapClick' && setupMode) {
         setSetupLat(data.lat);
         setSetupLng(data.lng);
         setSetupName('');
+        setSetupDesc('');
         setSetupModal(true);
       }
     } catch {}
@@ -379,25 +437,34 @@ export default function CampusMap({ userRole = 'student' }: Props) {
         setRouteResult(result);
         setMapHtml(buildMapHTML(points, {lat: fromPoint.lat, lng: fromPoint.lng}, {lat: toPoint.lat, lng: toPoint.lng}, routeMode, myLocation));
         setShowRoutePanel(false); 
+        // speak returned narrative or steps if available
+        if (result.narrative || Array.isArray(result.steps)) {
+          const narration = result.narrative || (Array.isArray(result.steps) ? result.steps.join('. ') : 'Route ready.');
+          speakDirections(narration);
+        }
       }
     } catch {}
   };
 
+  const speakDirections = (text: string) => {
+    try{
+      if(!text || typeof text !== 'string') return;
+      Speech.stop();
+      // Natural narration in English (turn-by-turn spoken as sentences)
+      Speech.speak(text, { language: 'en-US', rate: 0.95 });
+    }catch(e){}
+  };
+
   const handleUseMyLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') { Alert.alert('Permission Denied', 'Location permission is needed for this feature.'); return; }
-      const loc = await Location.getCurrentPositionAsync({});
-      const coords = { lat: loc.coords.latitude, lng: loc.coords.longitude };
-      setMyLocation(coords);
-      setUseMyLoc(true);
-      setFromSearch('📍 My Location');
-      setRouteFrom(undefined);
-    } catch { Alert.alert('Error', 'Could not get your location.'); }
+    Alert.alert('Location', 'Location services are not available.');
   };
 
   const fromSuggestions = fromSearch.trim() && !useMyLoc
     ? points.filter(p => p.name.toLowerCase().includes(fromSearch.toLowerCase()) || p.nameEn.toLowerCase().includes(fromSearch.toLowerCase())).slice(0, 4)
+    : [];
+
+  const toSuggestions = toSearch.trim()
+    ? points.filter(p => p.name.toLowerCase().includes(toSearch.toLowerCase()) || p.nameEn.toLowerCase().includes(toSearch.toLowerCase())).slice(0, 6)
     : [];
 
   const clearRoute = () => {
@@ -463,7 +530,7 @@ export default function CampusMap({ userRole = 'student' }: Props) {
       {routeResult && !showRoutePanel && (
         <View style={styles.floatingRouteCard}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.floatingRouteTitle}>{routeMode === 'walking' ? '🚶 Walking' : routeMode === 'driving' ? '🚗 Driving' : '🚌 Bus'}</Text>
+            <Text style={styles.floatingRouteTitle}>🧭 Directions • {routeMode === 'walking' ? '🚶 Walking' : routeMode === 'driving' ? '🚗 Driving' : '🚌 Bus'}</Text>
             <Text style={styles.floatingRouteEta}>{routeResult.etaLabel} • {routeResult.distanceLabel}</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -563,6 +630,7 @@ export default function CampusMap({ userRole = 'student' }: Props) {
             <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A365D', marginBottom: 12 }}>Drop a Pin</Text>
             <Text style={{ fontSize: 12, color: '#718096', marginBottom: 8 }}>Lat: {setupLat.toFixed(5)}, Lng: {setupLng.toFixed(5)}</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8, padding: 10, marginBottom: 12 }} placeholder="Location Name (e.g. Fen Fakültesi)" value={setupName} onChangeText={setSetupName} />
+            <TextInput style={{ borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8, padding: 10, marginBottom: 12 }} placeholder="Optional description (e.g. Working hours, notes)" value={setupDesc} onChangeText={setSetupDesc} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16, maxHeight: 40 }}>
               {CATEGORIES.filter(c => c.key !== 'All').map(cat => (
                 <TouchableOpacity key={cat.key} style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, backgroundColor: setupCat === cat.key ? '#1A365D' : '#EDF2F7', marginRight: 8 }} onPress={() => setSetupCat(cat.key)}>
@@ -571,16 +639,17 @@ export default function CampusMap({ userRole = 'student' }: Props) {
               ))}
             </ScrollView>
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: '#EDF2F7', borderRadius: 8, alignItems: 'center' }} onPress={() => setSetupModal(false)}>
+              <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: '#EDF2F7', borderRadius: 8, alignItems: 'center' }} onPress={() => { setSetupModal(false); setSetupName(''); setSetupDesc(''); }}>
                 <Text style={{ fontWeight: '600', color: '#4A5568' }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: '#2A69AC', borderRadius: 8, alignItems: 'center' }} onPress={async () => {
                 if (!setupName.trim()) { Alert.alert('Enter name'); return; }
-                const newPoint = { id: Date.now(), name: setupName, nameEn: setupName, category: setupCat, lat: setupLat, lng: setupLng, description: 'Added by setup mode' };
+                const newPoint = { id: Date.now(), name: setupName, nameEn: setupName, category: setupCat, lat: setupLat, lng: setupLng, description: setupDesc?.trim() || '' };
                 const updated = [...points, newPoint];
                 setPoints(updated);
                 setMapHtml(buildMapHTML(updated, undefined, undefined, 'walking', myLocation));
                 setSetupModal(false);
+                setSetupName(''); setSetupDesc('');
                 await API.saveMapConfig(updated);
                 Alert.alert('Saved!', 'Location has been saved permanently.');
               }}>

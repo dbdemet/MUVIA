@@ -22,7 +22,7 @@ export default function AcademicLoginScreen() {
     try {
       const res = await loginAcademic(e);
       if (res?.success) {
-        login({ ...res.user, role: 'academic' });
+        login({ ...res.user, name: formatDisplayNameFromEmail(e, res.user?.name || 'Academic Staff'), role: 'academic' });
         router.replace('/(academic)/home');
       } else {
         setError('Login failed. Please check your credentials.');

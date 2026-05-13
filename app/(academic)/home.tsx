@@ -1,6 +1,6 @@
-import { Alert, BackHandler, Modal, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, BackHandler, Dimensions, Image, Modal, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useAuthStore, type AuthStore } from '../../store/useAuthStore';
 import AIAssistant from '../../components/AIAssistant';
@@ -61,13 +61,68 @@ function HomeTab({ onNav }: { onNav: (t: Tab) => void }) {
   const [availability, setAvailability] = useState<Avail>('available');
   const [courses, setCourses] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [meal, setMeal] = useState<any>(null);
+  const [myRating, setMyRating] = useState(0);
+  const [mealTab, setMealTab] = useState<'today' | 'week'>('today');
+  const [activeEventIndex, setActiveEventIndex] = useState(0);
   const [availModal, setAvailModal] = useState(false);
   const [noteText, setNoteText] = useState('');
+  const evIdx = useRef(0);
+  const evScrollRef = useRef<ScrollView>(null);
+  const screenW = Dimensions.get('window').width - 56;
+
+  const staticCourseExamInfo = [
+    { type: 'Course', title: 'CSE301 - Software Engineering', detail: 'Mon 10:00-12:00 · ENG-214' },
+    { type: 'Course', title: 'CSE417 - Human Computer Interaction', detail: 'Wed 13:00-15:00 · LAB-3' },
+    { type: 'Exam', title: 'CSE301 Midterm Evaluation Window', detail: 'May 20-24 · Online Grade Entry' },
+    { type: 'Exam', title: 'CSE417 Project Jury', detail: 'May 28 · Innovation Hall' },
+  ];
+
+  const staticStudentMessages = [
+    { fromId: 's2201', fromName: 'Ayse Yilmaz', toId: user?.id || 'a1', content: 'Professor, I uploaded my project report to the system. Could you review it?', read: false, timestamp: new Date().toISOString() },
+    { fromId: 's2202', fromName: 'Mehmet Demir', toId: user?.id || 'a1', content: 'Can we meet during office hours to discuss the CSE301 assignment?', read: false, timestamp: new Date(Date.now() - 3600 * 1000).toISOString() },
+    { fromId: 's2203', fromName: 'Elif Kaya', toId: user?.id || 'a1', content: 'I would appreciate brief feedback on my quiz result.', read: true, timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString() },
+  ];
 
   useEffect(() => {
-    API.getCourses().then(d => d && setCourses(d.filter((c: any) => user?.courses?.includes(c.code))));
-    API.getMessages(user?.id || 'a1').then(d => d && setMessages(d.filter((m: any) => m.toId === (user?.id || 'a1'))));
-  }, []);
+    API.getCourses().then(d => {
+      if (!d) return;
+      const email = (user?.email || '').toLowerCase();
+      const matched = d.filter((c: any) => c.professorEmail?.toLowerCase() === email);
+      setCourses(matched.length > 0 ? matched : d.filter((c: any) => user?.courses?.includes(c.code)));
+    });
+    API.getMessages(user?.id || 'a1').then((d) => {
+      const apiMessages = Array.isArray(d) ? d.filter((m: any) => m.toId === (user?.id || 'a1')) : [];
+      setMessages([...staticStudentMessages, ...apiMessages]);
+    });
+    API.getTodayMeal().then(d => d && setMeal((p: any) => ({ ...p, today: d })));
+    API.getWeeklyMeals().then(d => {
+      if (Array.isArray(d)) setMeal((p: any) => ({ ...p, weekly: d }));
+    });
+    API.getEvents(user?.email).then(d => {
+      if (Array.isArray(d)) setEvents(d);
+    });
+  }, [user?.id, user?.email]);
+
+  useEffect(() => {
+    if (events.length < 2) return;
+    const timer = setInterval(() => {
+      evIdx.current = (evIdx.current + 1) % events.length;
+      setActiveEventIndex(evIdx.current);
+      evScrollRef.current?.scrollTo({ x: evIdx.current * (screenW + 12), animated: true });
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [events, screenW]);
+
+  const rateMeal = async (r: number) => {
+    setMyRating(r);
+    const m = meal?.today;
+    const res = await API.rateMeal(m?.date, r, user?.email);
+    if (res?.success) {
+      setMeal((p: any) => ({ ...p, today: { ...p.today, averageRating: res.newRating, ratingCount: res.ratingCount } }));
+    }
+  };
 
   const changeAvailability = async (a: Avail) => {
     setAvailability(a);
@@ -91,12 +146,107 @@ function HomeTab({ onNav }: { onNav: (t: Tab) => void }) {
         </TouchableOpacity>
       </View>
       <View style={st.statsRow}>
-        {[{ l: 'Courses', v: String(courses.length), i: '📖', t: 'courses' as Tab }, { l: 'Messages', v: String(unread), i: '💬', t: 'messages' as Tab }, { l: 'Students', v: '42', i: '👥', t: 'students' as Tab }].map((s, i) => (
+        {[{ l: 'Courses', v: String(courses.length), i: '📖', t: 'courses' as Tab }, { l: 'Messages', v: unread > 0 ? String(unread) : '0', i: '💬', t: 'messages' as Tab }, { l: 'Students', v: '42', i: '👥', t: 'students' as Tab }].map((s, i) => (
           <TouchableOpacity key={i} style={st.statCard} onPress={() => onNav(s.t)}>
             <Text style={{ fontSize: 22 }}>{s.i}</Text><Text style={st.statVal}>{s.v}</Text><Text style={st.statLbl}>{s.l}</Text>
           </TouchableOpacity>
         ))}
       </View>
+
+      <Text style={st.sectionTitle}>🎪 Event Posters</Text>
+      <ScrollView
+        ref={evScrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        decelerationRate="fast"
+        snapToInterval={screenW + 12}
+        style={{ marginBottom: 8 }}
+        onMomentumScrollEnd={(e) => {
+          const index = Math.round(e.nativeEvent.contentOffset.x / (screenW + 12));
+          evIdx.current = index;
+          setActiveEventIndex(index);
+        }}
+      >
+        {(events.length > 0 ? events : [{ title: 'No active events', date: '-', time: '-', location: 'Campus', interestedCount: 0, icon: '📣', description: 'Live event content will appear here.' }]).map((ev: any, i: number) => (
+          <View key={i} style={[st.eventPoster, { width: screenW }]}> 
+            <View style={st.posterMedia}>
+              {ev.imageUrl ? (
+                <Image source={{ uri: `${API.API_BASE_URL}${ev.imageUrl}` }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+              ) : (
+                <View style={st.posterFallbackIconWrap}>
+                  <Text style={st.posterFallbackIcon}>{ev.icon || '🎫'}</Text>
+                </View>
+              )}
+              <View style={st.posterMediaOverlay}>
+                <View style={st.posterBadge}><Text style={{ color: '#FFF', fontSize: 11, fontWeight: '700' }}>👥 {ev.interestedCount || 0} interested</Text></View>
+              </View>
+            </View>
+            <View style={st.posterBody}>
+              <Text style={st.posterTitle}>{ev.title}</Text>
+              <Text style={st.posterDesc} numberOfLines={3}>{ev.description || 'Event details are being prepared.'}</Text>
+              <View style={st.posterMeta}>
+                <Text style={st.posterMetaText}>📅 {ev.date || '-'}</Text>
+                <Text style={st.posterMetaText}>🕐 {ev.time || '-'}</Text>
+                <Text style={st.posterMetaText}>📍 {ev.location || 'Campus'}</Text>
+                <Text style={st.posterMetaText}>🎟️ {ev.remaining ?? '-'} / {ev.capacity ?? '-'} slots</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+      <View style={st.eventDotsRow}>
+        {(events.length > 0 ? events : [1]).map((_: any, i: number) => (
+          <View key={i} style={[st.eventDot, activeEventIndex === i && st.eventDotActive]} />
+        ))}
+      </View>
+
+      <Text style={st.sectionTitle}>🍽️ Meal Schedule</Text>
+      <View style={st.mealTabs}>
+        <TouchableOpacity style={[st.mealTabBtn, mealTab === 'today' && st.mealTabBtnActive]} onPress={() => setMealTab('today')}>
+          <Text style={[st.mealTabText, mealTab === 'today' && st.mealTabTextActive]}>Today</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[st.mealTabBtn, mealTab === 'week' && st.mealTabBtnActive]} onPress={() => setMealTab('week')}>
+          <Text style={[st.mealTabText, mealTab === 'week' && st.mealTabTextActive]}>Weekly</Text>
+        </TouchableOpacity>
+      </View>
+      {mealTab === 'today' ? (
+        <View style={st.mealCard}>
+          {(meal?.today?.items || []).map((item: any, i: number) => (
+            <Text key={i} style={st.mealItem}>{item.category === 'Soup' ? '🍜' : item.category === 'Main Course' ? '🥩' : item.category === 'Side Dish' ? '🥗' : item.category === 'Dessert' ? '🍰' : '🥤'} {item.name} ({item.calories} cal)</Text>
+          ))}
+          {(!meal?.today?.items || meal.today.items.length === 0) && <Text style={st.mealEmpty}>No menu published yet.</Text>}
+          <View style={st.ratingRow}>
+            <Text style={{ color: '#718096', fontSize: 12 }}>Rate: </Text>
+            {[1,2,3,4,5].map(s => (
+              <TouchableOpacity key={s} onPress={() => rateMeal(s)}><Text style={{ fontSize: 22 }}>{s <= (myRating || 0) ? '⭐' : '☆'}</Text></TouchableOpacity>
+            ))}
+            <Text style={{ color: '#718096', fontSize: 11, marginLeft: 8 }}>Avg: {meal?.today?.averageRating ?? '-'} ({meal?.today?.ratingCount ?? 0})</Text>
+          </View>
+        </View>
+      ) : (
+        <View style={{ gap: 8 }}>
+          {(meal?.weekly || []).map((m: any, i: number) => (
+            <View key={i} style={st.mealCard}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: G, marginBottom: 4 }}>{m.dayName || m.day || 'Day'} ({m.date || '-'})</Text>
+              {m.items?.map((item: any, j: number) => (
+                <Text key={j} style={st.mealItem}>• {item.name} ({item.calories} cal)</Text>
+              ))}
+            </View>
+          ))}
+          {(!meal?.weekly || meal.weekly.length === 0) && <Text style={st.mealEmpty}>Weekly menu not available.</Text>}
+        </View>
+      )}
+
+      <Text style={st.sectionTitle}>📚 Course & Exam Notes</Text>
+      {staticCourseExamInfo.map((item, i) => (
+        <View key={i} style={st.staticInfoCard}>
+          <Text style={st.staticInfoType}>{item.type}</Text>
+          <Text style={st.staticInfoTitle}>{item.title}</Text>
+          <Text style={st.staticInfoDetail}>{item.detail}</Text>
+        </View>
+      ))}
+
       <Text style={st.sectionTitle}>Today's Schedule</Text>
       {courses.slice(0, 3).map((c: any, i: number) => (
         <View key={i} style={st.courseCard}>
@@ -137,37 +287,106 @@ function HomeTab({ onNav }: { onNav: (t: Tab) => void }) {
 function CoursesTab() {
   const user = useAuthStore((s: AuthStore) => s.user);
   const [courses, setCourses] = useState<any[]>([]);
+  const [exams, setExams] = useState<any[]>([]);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [annModal, setAnnModal] = useState(false);
   const [annCourse, setAnnCourse] = useState('');
   const [annText, setAnnText] = useState('');
-  useEffect(() => { API.getCourses().then(d => d && setCourses(d.filter((c: any) => user?.courses?.includes(c.code)))); }, []);
+  const [activeSection, setActiveSection] = useState<'courses' | 'exams'>('courses');
+
+  useEffect(() => {
+    API.getCourses().then(d => {
+      if (!d) return;
+      const email = (user?.email || '').toLowerCase();
+      // 1) match by professorEmail
+      let matched = d.filter((c: any) => c.professorEmail?.toLowerCase() === email);
+      // 2) fallback: match by user.courses array (department codes)
+      if (matched.length === 0 && user?.courses?.length) {
+        matched = d.filter((c: any) => user.courses!.includes(c.code));
+      }
+      // 3) fallback: match by department name
+      if (matched.length === 0 && user?.department) {
+        matched = d.filter((c: any) => {
+          const profDept = (c.professor || '').toLowerCase();
+          return profDept.includes(user.department!.toLowerCase().split(' ')[0]);
+        });
+      }
+      setCourses(matched);
+    });
+    API.getExams().then(d => {
+      if (!Array.isArray(d)) return;
+      const myCodes = user?.courses || [];
+      setExams(d.filter((e: any) => myCodes.includes(e.courseCode)));
+    });
+  }, []);
+
   const sendAnn = async () => {
     if (!annText.trim()) { Alert.alert('Error', 'Announcement text is required.'); return; }
     await API.postAnnouncement({ title: `${annCourse} Announcement`, content: annText, author: user?.name, authorRole: 'academic', courseCode: annCourse, icon: '📢' });
     Alert.alert('✅ Sent', `Announcement sent to all students enrolled in ${annCourse}.`);
     setAnnText(''); setAnnModal(false);
   };
+
   return (
-    <View style={st.tabContent}><Text style={st.tabTitle}>My Courses</Text>
+    <View style={st.tabContent}>
+      <Text style={st.tabTitle}>My Courses & Exams</Text>
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
+        <TouchableOpacity style={[st.mealTabBtn, activeSection === 'courses' && st.mealTabBtnActive]} onPress={() => setActiveSection('courses')}>
+          <Text style={[st.mealTabText, activeSection === 'courses' && st.mealTabTextActive]}>📖 Courses ({courses.length})</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[st.mealTabBtn, activeSection === 'exams' && st.mealTabBtnActive]} onPress={() => setActiveSection('exams')}>
+          <Text style={[st.mealTabText, activeSection === 'exams' && st.mealTabTextActive]}>📝 Exams ({exams.length})</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {courses.map((c: any, i: number) => (
-          <TouchableOpacity key={i} style={[st.fullCourseCard, expanded === i && { borderWidth: 2, borderColor: '#276749' }]} onPress={() => setExpanded(expanded === i ? null : i)}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={st.codeBox}><Text style={st.codeText}>{c.code}</Text></View>
-              <View style={{ flex: 1 }}><Text style={st.courseName}>{c.name}</Text><Text style={st.courseDetail}>📅 {c.day} · 📍 {c.room} · 👥 {c.enrolledCount}</Text></View>
-            </View>
-            {expanded === i && (
-              <View style={st.courseActions}>
-                {[{ i: '📢', l: 'Announce' }, { i: '📁', l: 'Materials' }, { i: '👥', l: 'Students' }, { i: '📊', l: 'Grades' }].map((a, j) => (
-                  <TouchableOpacity key={j} style={st.actionBtn} onPress={() => { if (a.l === 'Announce') { setAnnCourse(c.code); setAnnModal(true); } }}>
-                    <Text style={{ fontSize: 20 }}>{a.i}</Text><Text style={st.actionLabel}>{a.l}</Text>
-                  </TouchableOpacity>
-                ))}
+        {activeSection === 'courses' && (
+          <>
+            {courses.length === 0 && <Text style={{ color: '#A0AEC0', textAlign: 'center', marginTop: 40 }}>No courses assigned yet.</Text>}
+            {courses.map((c: any, i: number) => (
+              <TouchableOpacity key={i} style={[st.fullCourseCard, expanded === i && { borderWidth: 2, borderColor: '#276749' }]} onPress={() => setExpanded(expanded === i ? null : i)}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <View style={st.codeBox}><Text style={st.codeText}>{c.code}</Text></View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={st.courseName}>{c.name}</Text>
+                    <Text style={st.courseDetail}>📅 {c.day} · 🕐 {c.startTime}-{c.endTime}</Text>
+                    <Text style={st.courseDetail}>📍 {c.room} · 👥 {c.enrolledCount} students</Text>
+                  </View>
+                </View>
+                {expanded === i && (
+                  <View style={{ marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
+                    <Text style={{ color: '#4A5568', fontSize: 12, marginBottom: 10 }}>{c.description}</Text>
+                    <View style={st.courseActions}>
+                      {[{ i: '📢', l: 'Announce' }, { i: '📁', l: 'Materials' }, { i: '👥', l: 'Students' }, { i: '📊', l: 'Grades' }].map((a, j) => (
+                        <TouchableOpacity key={j} style={st.actionBtn} onPress={() => { if (a.l === 'Announce') { setAnnCourse(c.code); setAnnModal(true); } }}>
+                          <Text style={{ fontSize: 20 }}>{a.i}</Text><Text style={st.actionLabel}>{a.l}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </>
+        )}
+        {activeSection === 'exams' && (
+          <>
+            {exams.length === 0 && <Text style={{ color: '#A0AEC0', textAlign: 'center', marginTop: 40 }}>No upcoming exams.</Text>}
+            {exams.map((ex: any, i: number) => (
+              <View key={i} style={st.staticInfoCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <Text style={st.staticInfoType}>{ex.type}</Text>
+                  <Text style={{ color: new Date(ex.date) < new Date() ? '#A0AEC0' : '#E53E3E', fontSize: 10, fontWeight: '700' }}>{new Date(ex.date) < new Date() ? 'PAST' : 'UPCOMING'}</Text>
+                </View>
+                <Text style={st.staticInfoTitle}>{ex.courseCode} - {ex.courseName}</Text>
+                <Text style={st.staticInfoDetail}>📅 {ex.date} · 🕐 {ex.startTime}-{ex.endTime}</Text>
+                <Text style={st.staticInfoDetail}>📍 {ex.room} · 👨‍🏫 {ex.professor}</Text>
+                {ex.topics?.length > 0 && <Text style={st.staticInfoDetail}>📚 Topics: {ex.topics.join(', ')}</Text>}
+                {ex.notes && <Text style={{ color: '#718096', fontSize: 11, fontStyle: 'italic', marginTop: 4 }}>📝 {ex.notes}</Text>}
               </View>
-            )}
-          </TouchableOpacity>
-        ))}
+            ))}
+          </>
+        )}
+        <View style={{ height: 20 }} />
       </ScrollView>
       <Modal visible={annModal} animationType="slide" transparent>
         <View style={st.modalOverlay}><View style={st.modalBox}>
@@ -189,6 +408,7 @@ function MessagesTab() {
   const [selectedConv, setSelectedConv] = useState<any>(null);
   const [convMessages, setConvMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState('');
+  const scrollRef = useRef<ScrollView>(null);
   const QUICK_TEMPLATES = [
     'Please visit during office hours.',
     'I will review and reply by tomorrow.',
@@ -196,63 +416,102 @@ function MessagesTab() {
     'Please email your report before Friday.'
   ];
 
+  const staticStudentMessages = [
+    { id: 'static1', fromId: 's2201', fromName: 'Ayse Yilmaz', toId: user?.id || 'a1', toName: user?.name || 'Professor', content: 'Professor, I uploaded my project report to the system. Could you review it?', read: false, timestamp: new Date(Date.now() - 600000).toISOString() },
+    { id: 'static2', fromId: 's2202', fromName: 'Mehmet Demir', toId: user?.id || 'a1', toName: user?.name || 'Professor', content: 'Can we meet during office hours to discuss the CSE301 assignment?', read: false, timestamp: new Date(Date.now() - 3600 * 1000).toISOString() },
+    { id: 'static3', fromId: 's2203', fromName: 'Elif Kaya', toId: user?.id || 'a1', toName: user?.name || 'Professor', content: 'I would appreciate brief feedback on my quiz result.', read: true, timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString() },
+  ];
+
   useEffect(() => {
-    API.getMessages(user?.id || 'a1').then(d => d && setAllMessages(d));
+    API.getMessages(user?.id || 'a1').then(d => {
+      const apiMsgs = Array.isArray(d) ? d : [];
+      const existingIds = new Set(apiMsgs.map((m: any) => m.fromId));
+      const seeded = staticStudentMessages.filter(s => !existingIds.has(s.fromId));
+      setAllMessages([...seeded, ...apiMsgs]);
+    });
   }, []);
 
   // Group by conversation partner
   const conversations = allMessages.reduce((acc: any[], msg: any) => {
     const partnerId = msg.fromId === (user?.id || 'a1') ? msg.toId : msg.fromId;
-    const partnerName = msg.fromId === (user?.id || 'a1') ? msg.toName : msg.fromName;
+    const partnerName = msg.fromId === (user?.id || 'a1') ? (msg.toName || 'Student') : (msg.fromName || 'Student');
+    if (!partnerId || !partnerName) return acc;
     if (!acc.find((c: any) => c.partnerId === partnerId)) {
+      const partnerMsgs = allMessages.filter((m: any) => m.fromId === partnerId || m.toId === partnerId);
+      const lastMessage = partnerMsgs[partnerMsgs.length - 1];
       const unread = allMessages.filter((m: any) => m.fromId === partnerId && m.toId === (user?.id || 'a1') && !m.read).length;
-      acc.push({ partnerId, partnerName, lastMsg: msg.content, unread, timestamp: msg.timestamp });
+      acc.push({ partnerId, partnerName, lastMsg: lastMessage?.content || msg.content, unread, timestamp: lastMessage?.timestamp || msg.timestamp });
     }
     return acc;
   }, []);
 
   const openConv = async (partnerId: string, partnerName: string) => {
     setSelectedConv({ partnerId, partnerName });
+    // Get API conversation
     const conv = await API.getConversation(user?.id || 'a1', partnerId);
-    if (conv) setConvMessages(conv);
+    const apiConv = Array.isArray(conv) ? conv : [];
+    // Merge static messages for this partner
+    const staticForPartner = staticStudentMessages.filter(s => s.fromId === partnerId || s.toId === partnerId);
+    const apiIds = new Set(apiConv.map((m: any) => m.id));
+    const merged = [...staticForPartner.filter(s => !apiIds.has(s.id)), ...apiConv].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    setConvMessages(merged);
     await API.markConversationRead(user?.id || 'a1', partnerId);
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300);
   };
 
   const sendReply = async () => {
     if (!chatInput.trim() || !selectedConv) return;
-    await API.sendMessage({ fromId: user?.id || 'a1', fromName: user?.name || 'Professor', fromRole: 'academic', toId: selectedConv.partnerId, toName: selectedConv.partnerName, content: chatInput.trim() });
+    const newMsg = { fromId: user?.id || 'a1', fromName: user?.name || 'Professor', fromRole: 'academic', toId: selectedConv.partnerId, toName: selectedConv.partnerName, content: chatInput.trim() };
+    await API.sendMessage(newMsg);
+    // Optimistic update
+    setConvMessages(prev => [...prev, { ...newMsg, id: `opt_${Date.now()}`, timestamp: new Date().toISOString(), read: false }]);
     setChatInput('');
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    // Refresh from API
     setTimeout(async () => {
       const conv = await API.getConversation(user?.id || 'a1', selectedConv.partnerId);
-      if (conv) setConvMessages(conv);
-    }, 500);
+      if (Array.isArray(conv) && conv.length > 0) {
+        const staticForPartner = staticStudentMessages.filter(s => s.fromId === selectedConv.partnerId);
+        const apiIds = new Set(conv.map((m: any) => m.id));
+        const merged = [...staticForPartner.filter(s => !apiIds.has(s.id)), ...conv].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        setConvMessages(merged);
+      }
+    }, 600);
   };
 
   if (selectedConv) {
     return (
       <View style={st.tabContent}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 24, paddingBottom: 12, gap: 12 }}>
-          <TouchableOpacity onPress={() => setSelectedConv(null)}><Text style={{ fontSize: 20, color: G }}>←</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => { setSelectedConv(null); setConvMessages([]); }} style={{ padding: 4 }}><Text style={{ fontSize: 22, color: G }}>←</Text></TouchableOpacity>
           <View style={st.msgAvatar}><Text style={{ color: '#FFF', fontWeight: '700' }}>{selectedConv.partnerName[0]}</Text></View>
-          <Text style={{ color: G, fontSize: 18, fontWeight: '700', flex: 1 }}>{selectedConv.partnerName}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: G, fontSize: 17, fontWeight: '700' }}>{selectedConv.partnerName}</Text>
+            <Text style={{ color: '#A0AEC0', fontSize: 11 }}>Tap to view profile</Text>
+          </View>
         </View>
-        <View style={{ flex: 1, backgroundColor: '#F7FAFC', borderRadius: 12, padding: 8, marginBottom: 8 }}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {convMessages.map((msg: any, idx: number) => (
-              <View key={idx} style={{ alignItems: msg.fromId === (user?.id || 'a1') ? 'flex-end' : 'flex-start', marginBottom: 8 }}>
-                <View style={{ backgroundColor: msg.fromId === (user?.id || 'a1') ? G : '#FFF', borderRadius: 14, padding: 10, maxWidth: '80%', elevation: 1 }}>
-                  <Text style={{ color: msg.fromId === (user?.id || 'a1') ? '#FFF' : '#1A202C', fontSize: 13 }}>{msg.content}</Text>
-                  <Text style={{ color: msg.fromId === (user?.id || 'a1') ? 'rgba(255,255,255,0.5)' : '#A0AEC0', fontSize: 9, marginTop: 4, textAlign: 'right' }}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+        <View style={{ flex: 1, backgroundColor: '#F0F4F8', borderRadius: 16, padding: 10, marginBottom: 8 }}>
+          <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}>
+            {convMessages.length === 0 && <Text style={{ color: '#A0AEC0', textAlign: 'center', marginTop: 40, fontSize: 13 }}>Start a conversation...</Text>}
+            {convMessages.map((msg: any, idx: number) => {
+              const isMe = msg.fromId === (user?.id || 'a1');
+              return (
+                <View key={msg.id || idx} style={{ alignItems: isMe ? 'flex-end' : 'flex-start', marginBottom: 10 }}>
+                  {!isMe && <Text style={{ color: '#718096', fontSize: 10, marginBottom: 2, marginLeft: 4 }}>{msg.fromName}</Text>}
+                  <View style={{ backgroundColor: isMe ? G : '#FFF', borderRadius: 16, borderTopRightRadius: isMe ? 4 : 16, borderTopLeftRadius: isMe ? 16 : 4, padding: 12, maxWidth: '80%', elevation: 2, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 4 }}>
+                    <Text style={{ color: isMe ? '#FFF' : '#1A202C', fontSize: 14, lineHeight: 20 }}>{msg.content}</Text>
+                    <Text style={{ color: isMe ? 'rgba(255,255,255,0.5)' : '#A0AEC0', fontSize: 9, marginTop: 4, textAlign: 'right' }}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                  </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </ScrollView>
         </View>
 
-        <View style={{ marginBottom: 8 }}>
+        <View style={{ marginBottom: 6 }}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.templateRow}>
             {QUICK_TEMPLATES.map((t, i) => (
-              <TouchableOpacity key={i} style={st.templateChip} onPress={() => setChatInput(t)} onLongPress={async () => { setChatInput(t); await sendReply(); }}>
+              <TouchableOpacity key={i} style={st.templateChip} onPress={() => setChatInput(t)}>
                 <Text style={st.templateChipText}>{t}</Text>
               </TouchableOpacity>
             ))}
@@ -261,7 +520,7 @@ function MessagesTab() {
 
         <View style={{ flexDirection: 'row', gap: 8, paddingBottom: 8 }}>
           <TextInput style={[st.modalInput, { flex: 1, marginBottom: 0 }]} placeholder="Type a reply..." placeholderTextColor="#A0AEC0" value={chatInput} onChangeText={setChatInput} onSubmitEditing={sendReply} />
-          <TouchableOpacity style={{ backgroundColor: G, borderRadius: 12, paddingHorizontal: 16, justifyContent: 'center' }} onPress={sendReply}><Text style={{ color: '#FFF', fontWeight: '700' }}>Send</Text></TouchableOpacity>
+          <TouchableOpacity style={{ backgroundColor: G, borderRadius: 12, paddingHorizontal: 18, justifyContent: 'center' }} onPress={sendReply}><Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>Send</Text></TouchableOpacity>
         </View>
       </View>
     );
@@ -273,9 +532,9 @@ function MessagesTab() {
         {conversations.length === 0 && <Text style={{ color: '#A0AEC0', textAlign: 'center', marginTop: 40 }}>No messages yet</Text>}
         {conversations.map((c: any, i: number) => (
           <TouchableOpacity key={i} style={st.msgCard} onPress={() => openConv(c.partnerId, c.partnerName)}>
-            <View style={st.msgAvatar}><Text style={{ color: '#FFF', fontWeight: '700' }}>{c.partnerName[0]}</Text></View>
+            <View style={st.msgAvatar}><Text style={{ color: '#FFF', fontWeight: '700' }}>{(c.partnerName || '?')[0]}</Text></View>
             <View style={{ flex: 1 }}><Text style={st.msgName}>{c.partnerName}</Text><Text style={st.msgText} numberOfLines={1}>{c.lastMsg}</Text></View>
-            {c.unread > 0 && <View style={[st.unreadDot, { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }]}><Text style={{ color: '#FFF', fontSize: 10, fontWeight: '700' }}>{c.unread}</Text></View>}
+            {c.unread > 0 && <View style={[st.unreadDot, { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' }]}><Text style={{ color: '#FFF', fontSize: 10, fontWeight: '700' }}>{c.unread}</Text></View>}
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -342,6 +601,35 @@ const st = StyleSheet.create({
   statCard: { flex: 1, backgroundColor: '#FFF', borderRadius: 14, padding: 14, alignItems: 'center', gap: 4, elevation: 2 },
   statVal: { color: G, fontSize: 20, fontWeight: '800' }, statLbl: { color: '#718096', fontSize: 11 },
   sectionTitle: { color: G, fontSize: 15, fontWeight: '700', marginTop: 20, marginBottom: 10 },
+  eventPoster: { backgroundColor: '#FFF', borderRadius: 18, marginRight: 12, overflow: 'hidden', elevation: 4 },
+  posterMedia: { height: 148, backgroundColor: G, justifyContent: 'space-between' },
+  posterMediaOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.28)', padding: 12, justifyContent: 'flex-end' },
+  posterBody: { padding: 14, gap: 8, backgroundColor: '#FFF' },
+  posterTitle: { color: G, fontSize: 18, fontWeight: '800', lineHeight: 24 },
+  posterDesc: { color: '#4A5568', fontSize: 12, lineHeight: 18 },
+  posterMeta: { flexDirection: 'row', gap: 10, marginTop: 2, flexWrap: 'wrap' },
+  posterMetaText: { color: '#718096', fontSize: 11, fontWeight: '600' },
+  posterBadge: { backgroundColor: 'rgba(17,24,39,0.72)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start' },
+  posterFallbackIconWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  posterFallbackIcon: { fontSize: 40 },
+  eventDotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 4 },
+  eventDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#CBD5E0' },
+  eventDotActive: { backgroundColor: '#276749' },
+  mealTabs: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  mealTabBtn: { backgroundColor: '#EDF2F7', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12 },
+  mealTabBtnActive: { backgroundColor: '#276749' },
+  mealTabText: { color: '#4A5568', fontSize: 12, fontWeight: '700' },
+  mealTabTextActive: { color: '#FFF' },
+  mealCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 16, gap: 6, borderWidth: 1, borderColor: '#E2E8F0' },
+  mealItem: { color: '#1A202C', fontSize: 13 },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 2 },
+  mealTitle: { color: G, fontSize: 14, fontWeight: '700', marginBottom: 6 },
+  mealLine: { color: '#2D3748', fontSize: 12, marginBottom: 4 },
+  mealEmpty: { color: '#A0AEC0', fontSize: 12 },
+  staticInfoCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 14, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: '#2F855A' },
+  staticInfoType: { color: '#2F855A', fontSize: 10, fontWeight: '800', textTransform: 'uppercase', marginBottom: 2 },
+  staticInfoTitle: { color: '#1A202C', fontSize: 13, fontWeight: '700', marginBottom: 2 },
+  staticInfoDetail: { color: '#718096', fontSize: 12 },
   tabTitle: { color: G, fontSize: 22, fontWeight: '800', paddingTop: 24, paddingBottom: 16 },
   courseCard: { backgroundColor: '#FFF', borderRadius: 14, flexDirection: 'row', alignItems: 'center', padding: 14, marginBottom: 8, gap: 12, elevation: 2 },
   courseTime: { backgroundColor: '#F0FFF4', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 6, minWidth: 52, alignItems: 'center' },

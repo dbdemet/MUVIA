@@ -188,11 +188,10 @@ function HomeTab() {
         if (c?.status === 'triaged' || c?.status === 'assigned') {
           if (!alertedAssign) {
             alertedAssign = true;
-            alertedAssign = true;
             clearInterval(poll);
             Alert.alert(
-              'AI Routing Confirmation',
-              `The MUVIA AI has analyzed your request and determined the appropriate handling path.\n\nFirst Contact: ${c.facultyUnit || 'Student Affairs'}\nAction Unit: ${c.routedUnit || 'Relevant Dept'}\n\nOur system has notified ${c.managerName || 'the department manager'} to begin the review process. You can track status updates in your history.`
+              'Complaint Forwarded ✓',
+              `Your request has been analyzed by MUVIA AI.\n\n- Local Admin: ${c.facultyUnitDisplayName || 'Faculty Deanery'}\n- Service Unit: ${c.serviceUnitDisplayName || 'Technical Dept'}\n\n${c.actionPlan || 'Processing has started.'}`
             );
           }
         } else if (c?.status === 'resolved' || c?.status === 'closed') {
@@ -1103,22 +1102,16 @@ function ProfileTab({ router }: { router: any }) {
     }
     const res = await API.submitComplaintFeedback(complaintId, fb.rating, fb.note, fb.action);
     if (res?.success) {
-      if (fb.rating === 1) {
-        Alert.alert(
-          'Issue Escalated',
-          'We are sorry that the resolution was not satisfactory. Your 1-star rating has automatically marked this issue as UNRESOLVED. Our central administration has been notified to intervene and ensure a better outcome.'
-        );
-      } else {
-        Alert.alert(
-          'Feedback Forwarded',
-          `Your feedback and rating have been successfully forwarded to the ${res.routedUnit || 'relevant department'}. Your input helps us improve campus services.`
-        );
-      }
-      setFeedbackData(prev => ({ ...prev, [complaintId]: { rating: 0, note: '' } }));
+      Alert.alert('Message Sent', fb.rating >= 3 ? "Thank you for your feedback." : "Your message has been forwarded to the relevant units.");
+      setFeedbackData(prev => {
+        const next = { ...prev };
+        delete next[complaintId];
+        return next;
+      });
       const c = await API.getComplaints(user?.id || 's1', user?.email);
       setComplaints(c?.sort((a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()) || []);
     } else {
-      Alert.alert('Connection Error', 'Could not submit feedback. Please ensure the backend server is running and updated.');
+      Alert.alert('Connection Error', 'Could not submit feedback.');
     }
   };
   const items = [

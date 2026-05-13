@@ -11,13 +11,125 @@ app.use('/event_images', express.static(path.join(__dirname, '../event_images'))
 
 
 function formatNameFromEmail(email) {
-  let raw = (email || '').split('@')[0] || 'User';
-  raw = raw.replace(/\d+$/g, '').replace(/[._-]/g, ' ');
-  return raw
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
-    .join(' ');
+  // ── Comprehensive Turkish First Names Dictionary ──
+  const firstNames = [
+    // Male - very common
+    'mehmet','mustafa','ahmet','ali','huseyin','hasan','ibrahim','ismail','yusuf','osman',
+    'murat','ramazan','halil','omer','suleyman','mahmut','abdullah','kemal','bekir','salih',
+    'fatih','burak','emre','cemal','erdal','serdar','selcuk','orhan','ayhan','yasar',
+    'kadir','adem','hakan','volkan','gokhan','serkan','ugur','ozgur','yasin','selim',
+    'sinan','cem','turan','can','baris','kaan','mert','onur','ozan','tolga',
+    'umut','utku','yigit','eren','enes','emir','efe','berk','arda','tuna',
+    'furkan','alp','alperen','berat','bilal','cihat','cihan','deniz','dogan','engin',
+    'ercan','erdem','erhan','ersin','faruk','ferit','ferhat','fikret','goksel','gurkan',
+    'hamza','hakan','hayri','hikmet','ilhan','ilker','ilyas','irfan','ismet','kamil',
+    'kasim','koray','levent','metin','muammer','muhammed','necati','nuri','oguz','polat',
+    'recep','ridvan','saban','samet','sedat','sefa','semih','suat','sukru','tahir',
+    'taner','tarik','timur','tufan','turgut','ufuk','umit','vedat','volkan','yavuz',
+    'zafer','zeki',
+    // Female - very common
+    'fatma','ayse','emine','hatice','zeynep','elif','havva','meryem','mine','sultan',
+    'demet','gizem','busra','kubra','merve','seda','esra','eda','selin','pelin',
+    'ceren','gamze','irem','tugce','tugba','asli','betul','ceyda','dilara','duygu',
+    'ece','ezgi','gokce','gozde','hazal','ilayda','melis','nihal','nur','ozge',
+    'pinar','rabia','sena','sevval','sinem','yasemin','aylin','banu','basak','berna',
+    'beyza','birsen','burcu','cansu','damla','defne','derya','didem','dilek','ebru',
+    'elcin','elifnur','esin','feride','figen','filiz','fulya','gonca','gulden','gulsah',
+    'gulsen','hande','hulya','inci','ipek','jale','laden','lale','leyda','melek',
+    'meltem','miray','nalan','nazan','neslihan','nesrin','nihan','nilgun','nuray','olcay',
+    'oyku','ozlem','pervin','reyhan','ruya','sanem','seher','selen','selma','sevgi',
+    'sevil','sibel','simge','songul','sude','suzan','tansu','tuba','tugba','tulin',
+    'yagmur','yaprak','yeliz','yesim','zehra','zilan'
+  ];
+
+  // ── Comprehensive Turkish Last Names Dictionary ──
+  const lastNames = [
+    // Top 100+ most common Turkish surnames
+    'yilmaz','kaya','demir','sahin','celik','yildiz','yildirim','ozturk','arslan','dogan',
+    'koc','kurt','ozdemir','demirci','aksoy','acar','akbulut','akin','kilic','karaca',
+    'turk','gunes','toprak','polat','tekin','tas','aslan','unal','can','ozkan',
+    'ozcan','sezer','kaplan','cetin','guler','bozkurt','kara','kocak','bektas','sari',
+    'ergun','kaynak','oktay','ergul','esen','bayraktar','kalayci','alkan','yavuz','bas',
+    'kayaalp','demirel','turan','gok','sener','korkmaz','altun','erkan','akman','kasap',
+    'yalcin','bayram','karakus','genc','bulut','derin','soylu','bolat','cetinkaya','aydin',
+    'erdogan','ates','basar','cakir','caliskan','cakmak','coban','durmus','ekinci','erol',
+    'gul','gultekin','gungor','inal','ince','karaman','kavak','keskin','kocer','kose',
+    'kutlu','oguz','onal','ozer','ozgur','pala','parlak','sari','savci','soydan',
+    'sen','simsek','tan','tanriverdi','tekeli','temiz','tok','tokat','tosun','tuncer',
+    'turkmen','ucak','ulus','uslu','uzun','vardar','yalcinkaya','yalin','yazici','yoruk',
+    'yuksel','zengin',
+    // Additional common surnames
+    'aktas','akyol','altas','altintas','asik','atakan','atay','avci','balci','balik',
+    'basaran','baser','bayar','bayrak','bilgin','bircan','candan','cevik','cicek','colak',
+    'dalkiran','dede','dinc','dincer','dursun','durmaz','ekim','elmas','erdem','eryilmaz',
+    'gedik','gonul','gurbuz','guven','isik','kalabalik','kanat','kangal','kaptan','karatas',
+    'keles','kilinc','kiral','konak','kuru','mercan','nacar','oguzhan','onder','ozay',
+    'ozbek','ozcelik','ozden','ozturk','saglam','sakalli','sarac','sezgin','solmaz','sonmez',
+    'soylemez','sucu','talay','tanis','taskin','tatli','tezcan','topal','topcu','tunc',
+    'turhan','ucar','uludag','ulusoy','ustun','yaman','yanmaz','yavas','yetim','yildiran',
+    'yolcu','zaman'
+  ];
+
+  // ── Build lookup Sets for O(1) matching ──
+  const firstNameSet = new Set(firstNames);
+  const lastNameSet = new Set(lastNames);
+
+  const rawUsername = (email || '').split('@')[0] || 'User';
+  const cleaned = rawUsername.replace(/\d+$/g, '').replace(/[^a-zA-ZçğıöşüÇĞİÖŞÜ._-]/g, '');
+  if (!cleaned) return 'User';
+
+  const lower = cleaned.toLowerCase();
+  const parts = lower.split(/[._-]+/).filter(Boolean);
+
+  const capitalizeTR = (text) => text ? text.charAt(0).toLocaleUpperCase('tr-TR') + text.slice(1).toLocaleLowerCase('tr-TR') : '';
+
+  // ── Smart split: try firstName+lastName then lastName+firstName ──
+  const splitKnown = (token) => {
+    // Strategy 1: firstName + lastName (most common email format)
+    for (const first of firstNames) {
+      if (!token.startsWith(first)) continue;
+      const rest = token.slice(first.length);
+      if (!rest) continue;
+      if (lastNameSet.has(rest)) return [first, rest];
+      // Check if rest starts with a known last name (compound surnames)
+      for (const last of lastNames) {
+        if (rest.startsWith(last) && rest.length === last.length) return [first, last];
+      }
+    }
+    // Strategy 2: lastName + firstName (reverse order)
+    for (const last of lastNames) {
+      if (!token.startsWith(last)) continue;
+      const rest = token.slice(last.length);
+      if (!rest) continue;
+      if (firstNameSet.has(rest)) return [rest, last]; // Return as [firstName, lastName]
+    }
+    // Strategy 3: any firstName anywhere + remainder as lastName
+    for (const first of firstNames) {
+      if (!token.startsWith(first)) continue;
+      const rest = token.slice(first.length);
+      if (rest.length >= 2) return [first, rest]; // Accept any reasonable remainder
+    }
+    // Strategy 4: known lastName at end
+    for (const last of lastNames) {
+      if (!token.endsWith(last)) continue;
+      const pre = token.slice(0, token.length - last.length);
+      if (pre.length >= 2) return [pre, last];
+    }
+    return null;
+  };
+
+  let normalizedParts = parts;
+  if (normalizedParts.length === 1) {
+    const token = normalizedParts[0];
+    const known = splitKnown(token);
+    if (known) normalizedParts = known;
+    else if (token.length >= 8) {
+      const splitIndex = Math.max(3, Math.min(token.length - 3, Math.floor(token.length / 2)));
+      normalizedParts = [token.slice(0, splitIndex), token.slice(splitIndex)];
+    }
+  }
+
+  return normalizedParts.map((part) => capitalizeTR(part)).join(' ').trim() || 'User';
 }
 
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || process.env.EXPO_PUBLIC_ANTHROPIC_KEY || '';
@@ -198,17 +310,214 @@ let nextId = 1000;
 const genId = (p = 'id') => `${p}${++nextId}`;
 
 const UNIT_MANAGERS = {
-  Infrastructure: { manager: 'Technical Services Lead', unit: 'Department of Construction and Technical Services' },
-  IT: { manager: 'IT Coordinator', unit: 'MSKU IT Department' },
-  Academic: { manager: 'Faculty Student Affairs Coordinator', unit: 'Faculty Student Affairs' },
-  Rectorate: { manager: 'Rectorate Admin Coordination', unit: 'Rectorate' },
-  Transport: { manager: 'Transport Ops Lead', unit: 'Campus Transport Unit' },
-  Security: { manager: 'Security Chief', unit: 'Campus Security Unit' },
-  Health: { manager: 'Health Unit Lead', unit: 'Campus Health Unit' },
-  StudentAffairs: { manager: 'Student Affairs Manager', unit: 'Student Affairs Department' },
-  General: { manager: 'Administrative Manager', unit: 'General Administrative Unit' },
+  // ── FIRST TIER: Faculty and Main Building Managements ──
+  engineering_faculty: {
+    id: "engineering_faculty",
+    displayName: "Dean's Office of Engineering",
+    managerName: "Dean of Engineering",
+    email: "muhendislik@msku.edu.tr"
+  },
+  literature_faculty: {
+    id: "literature_faculty",
+    displayName: "Dean's Office of Letters",
+    managerName: "Dean of Letters",
+    email: "edebiyat@msku.edu.tr"
+  },
+  education_faculty: {
+    id: "education_faculty",
+    displayName: "Dean's Office of Education",
+    managerName: "Dean of Education",
+    email: "egitim@msku.edu.tr"
+  },
+  technology_faculty: {
+    id: "technology_faculty",
+    displayName: "Dean's Office of Technology",
+    managerName: "Dean of Technology",
+    email: "teknoloji@msku.edu.tr"
+  },
+  economics_faculty: {
+    id: "economics_faculty",
+    displayName: "Dean's Office of Economics (FEAS)",
+    managerName: "Dean of FEAS",
+    email: "iibf@msku.edu.tr"
+  },
+  tourism_faculty: {
+    id: "tourism_faculty",
+    displayName: "Dean's Office of Tourism",
+    managerName: "Dean of Tourism",
+    email: "turizm@msku.edu.tr"
+  },
+  foreign_languages_faculty: {
+    id: "foreign_languages_faculty",
+    displayName: "School of Foreign Languages",
+    managerName: "Director of Foreign Languages",
+    email: "yabancidiller@msku.edu.tr"
+  },
+  fine_arts_faculty: {
+    id: "fine_arts_faculty",
+    displayName: "Dean's Office of Fine Arts",
+    managerName: "Dean of Fine Arts",
+    email: "guzelsanatlar@msku.edu.tr"
+  },
+  theology_faculty: {
+    id: "theology_faculty",
+    displayName: "Dean's Office of Theology",
+    managerName: "Dean of Theology",
+    email: "islamiilimler@msku.edu.tr"
+  },
+  medicine_faculty: {
+    id: "medicine_faculty",
+    displayName: "Dean's Office of Medicine",
+    managerName: "Dean of Medicine",
+    email: "tip@msku.edu.tr"
+  },
+  health_sciences_faculty: {
+    id: "health_sciences_faculty",
+    displayName: "Dean's Office of Health Sciences",
+    managerName: "Dean of Health Sciences",
+    email: "saglikbilimleri@msku.edu.tr"
+  },
+  science_faculty: {
+    id: "science_faculty",
+    displayName: "Dean's Office of Science",
+    managerName: "Dean of Science",
+    email: "fen@msku.edu.tr"
+  },
+  architecture_faculty: {
+    id: "architecture_faculty",
+    displayName: "Dean's Office of Architecture",
+    managerName: "Dean of Architecture",
+    email: "mimarlik@msku.edu.tr"
+  },
+  sports_sciences_faculty: {
+    id: "sports_sciences_faculty",
+    displayName: "Dean's Office of Sports Sciences",
+    managerName: "Dean of Sports Sciences",
+    email: "sporbilimleri@msku.edu.tr"
+  },
+  aquatic_sciences_faculty: {
+    id: "aquatic_sciences_faculty",
+    displayName: "Dean's Office of Aquatic Sciences",
+    managerName: "Dean of Aquatic Sciences",
+    email: "suurunleri@msku.edu.tr"
+  },
+  central_library: {
+    id: "central_library",
+    displayName: "MSKU Central Library",
+    managerName: "Library Director",
+    email: "kutuphane@msku.edu.tr"
+  },
+  rectorate: {
+    id: "rectorate",
+    displayName: "Rectorate Office",
+    managerName: "Vice Rector",
+    email: "rektorluk@msku.edu.tr"
+  },
+  sports_center: {
+    id: "sports_center",
+    displayName: "Campus Sports Center",
+    managerName: "Sports Center Director",
+    email: "spor@msku.edu.tr"
+  },
+
+  // ── SECOND TIER: Technical and Service Units ──
+  yapi_isleri: {
+    id: "yapi_isleri",
+    displayName: "Dept. of Construction and Technical Services",
+    managerName: "Head of Technical Services",
+    email: "yapiisleri@msku.edu.tr"
+  },
+  bilgi_islem: {
+    id: "bilgi_islem",
+    displayName: "Department of IT Services",
+    managerName: "Head of IT Department",
+    email: "bilgiislem@msku.edu.tr"
+  },
+  saglik_hizmetleri: {
+    id: "saglik_hizmetleri",
+    displayName: "Health, Culture and Sports Department (SKS)",
+    managerName: "Head of SKS Department",
+    email: "sks@msku.edu.tr"
+  },
+  ogrenci_isleri: {
+    id: "ogrenci_isleri",
+    displayName: "Student Affairs Department",
+    managerName: "Head of Student Affairs",
+    email: "ogrenciisleri@msku.edu.tr"
+  },
+  idari_mali: {
+    id: "idari_mali",
+    displayName: "Department of Administrative and Financial Affairs",
+    managerName: "Head of Admin Affairs",
+    email: "idari@msku.edu.tr"
+  }
 };
-const COMPLAINT_STATUSES = ['pending', 'triaged', 'assigned', 'in-progress', 'resolved', 'closed'];
+
+// ── FACILITIES MAP: Building/Faculty names → First tier unit ──
+const FACILITIES_MAP = {
+  "research laboratory center": "engineering_faculty",
+  "research labaratory center": "engineering_faculty",
+  "faculty of health sciences": "health_sciences_faculty",
+  "faculty of medicine": "medicine_faculty",
+  "office of president": "rectorate",
+  "faculty of sport sciences": "sports_sciences_faculty",
+  "faculty of technology": "technology_faculty",
+  "faculty of education": "education_faculty",
+  "faculty of economics": "economics_faculty",
+  "faculty of literature": "literature_faculty",
+  "faculty of science": "science_faculty",
+  "department of informatics": "engineering_faculty",
+  "faculty of engineering": "engineering_faculty",
+  "faculty of tourism": "tourism_faculty",
+  "faculty of theology": "theology_faculty",
+  "faculty of fine arts": "fine_arts_faculty",
+  "university library": "central_library",
+  "stadium": "sports_center",
+  "indoor swimming pool": "sports_center",
+  "ataturk cultural center": "rectorate",
+  "sitki kocman student union": "rectorate",
+  "sitki kocman dining hall": "rectorate"
+};
+
+// ── PROBLEM TYPE ROUTING: Keywords → Service unit ──
+const SERVICE_UNIT_MAP = {
+  "wifi": "bilgi_islem",
+  "wi-fi": "bilgi_islem",
+  "internet": "bilgi_islem",
+  "network": "bilgi_islem",
+  "connection": "bilgi_islem",
+  "internet connection": "bilgi_islem",
+  "computer": "bilgi_islem",
+  "system": "bilgi_islem",
+  "sabis": "bilgi_islem",
+  "email": "bilgi_islem",
+  "printer": "bilgi_islem",
+  "projection": "bilgi_islem",
+  "screen": "bilgi_islem",
+  "software": "bilgi_islem",
+  "application": "bilgi_islem",
+  "smell": "yapi_isleri",
+  "odor": "yapi_isleri",
+  "maintenance": "yapi_isleri",
+  "broken": "yapi_isleri",
+  "elevator": "yapi_isleri",
+  "electricity": "yapi_isleri",
+  "water": "yapi_isleri",
+  "heating": "yapi_isleri",
+  "cooling": "yapi_isleri",
+  "cleaning": "yapi_isleri",
+  "building": "yapi_isleri",
+  "infrastructure": "yapi_isleri",
+  "registration": "ogrenci_isleri",
+  "document": "ogrenci_isleri",
+  "transcript": "ogrenci_isleri",
+  "enrollment": "ogrenci_isleri",
+  "academic": "ogrenci_isleri",
+  "course": "ogrenci_isleri",
+  "student affairs": "ogrenci_isleri"
+};
+
+const COMPLAINT_STATUSES = ['pending', 'triaged', 'assigned', 'in-progress', 'resolved', 'closed', 'escalated'];
 
 function ensureUser(email, role = 'student') {
   const e = (email || '').trim().toLowerCase();
@@ -235,7 +544,7 @@ function ensureUser(email, role = 'student') {
       enrolledCourses: dept.courses,
       title: isStudent ? undefined : 'Assoc. Prof.',
       officeRoom: isStudent ? undefined : 'ENG-214',
-      courses: isStudent ? undefined : ['CS301', 'CS302'],
+      courses: isStudent ? undefined : dept.courses,
       accessibility: { largeText: false, highContrast: false, reducedMotion: false, screenReaderOptimized: false, dyslexiaFont: false, colorBlindMode: 'none', textToSpeech: false, increasedTouchTargets: false, language: 'en', fontSizeScale: 1, autoReadNotifications: false },
       joinedClubs: [],
       lastActiveAt: new Date().toISOString(),
@@ -244,8 +553,13 @@ function ensureUser(email, role = 'student') {
   }
   const dept = getDeptForEmail(e);
   if (role === 'student') userProfiles[e].enrolledCourses = dept.courses;
+  if (role === 'academic') { userProfiles[e].courses = dept.courses; userProfiles[e].enrolledCourses = dept.courses; }
   userProfiles[e].lastActiveAt = new Date().toISOString();
   if (role) userProfiles[e].role = role;
+  // Always re-derive name from email to pick up dictionary improvements
+  const freshName = formatNameFromEmail(e);
+  const isStudentNow = userProfiles[e].role === 'student' || e.endsWith('@posta.mu.edu.tr');
+  userProfiles[e].name = isStudentNow ? freshName : `Dr. ${freshName}`;
   return userProfiles[e];
 }
 
@@ -349,38 +663,44 @@ function heuristicComplaintRouting(complaint) {
 }
 
 async function llmComplaintRouting(complaint) {
-  const prompt = `Analyze the student complaint and return a two-tier routing plan in strict JSON: {facultyUnit, unitKey, priority, summary, actionPlan, confidence}.
-facultyUnit: The EXACT Dean's Office / Student Affairs of the FACULTY or LOCATION explicitly mentioned in the text. 
-CRITICAL: If the complaint mentions a specific building or POI from the Map (e.g. "Library", "Stadium", "Dining Hall", "Sports Center", "Swimming Pool", "Rectorate"), route it to that building's administration first. 
-DO NOT default to Engineering Faculty unless explicitly stated.
-If NO location is mentioned, default strictly to "${complaint.faculty} Dean's Office".
-
-KNOWLEDGE BASE (FACULTIES & LOCATIONS):
-- Faculty of Engineering (ENG)
-- Faculty of Technology (TECH)
-- Faculty of Education (EDU)
-- Faculty of Economics (FEAS)
-- Faculty of Science (SCI)
-- Faculty of Literature (LET)
-- Faculty of Medicine (MED)
-- University Library (Main POI)
-- Rectorate / Office of the President (Main POI)
-- Sports Center / Stadium / Swimming Pool (Main POI)
-- Dining Hall / Cafeteria (Main POI)
-
-Complaint Subject: ${complaint.subject}
-Complaint Description: ${complaint.description}
-Student's Registered Faculty: ${complaint.faculty}`;
-  const llm = await callAnthropic('Campus complaint two-tier triage engine, return strict JSON. Be precise about mentioned locations.', prompt);
-  if (!llm) return null;
-  try {
-    const parsed = JSON.parse(llm);
-    if (!UNIT_MANAGERS[parsed.unitKey]) return null;
-    return parsed;
-  } catch {
-    return null;
+  const text = `${complaint.subject || ''} ${complaint.description || ''}`.toLowerCase();
+  
+  // Step 1: Identify facility/building (First Tier Unit)
+  let facultyUnit = null;
+  for (const [facilityName, unitKey] of Object.entries(FACILITIES_MAP)) {
+    if (text.includes(facilityName)) {
+      facultyUnit = unitKey;
+      break;
+    }
   }
+  
+  // If no facility found, default to engineering_faculty (most common)
+  if (!facultyUnit) {
+    facultyUnit = "engineering_faculty";
+  }
+  
+  // Step 2: Identify problem type (Second Tier Service Unit)
+  let serviceUnit = "bilgi_islem"; // default to IT
+  for (const [keyword, unitKey] of Object.entries(SERVICE_UNIT_MAP)) {
+    if (text.includes(keyword)) {
+      serviceUnit = unitKey;
+      break;
+    }
+  }
+  
+  // Verify units exist
+  if (!UNIT_MANAGERS[facultyUnit]) facultyUnit = "engineering_faculty";
+  if (!UNIT_MANAGERS[serviceUnit]) serviceUnit = "bilgi_islem";
+  
+  return {
+    facultyUnit,
+    serviceUnit,
+    actionPlan: `This complaint has been analyzed and routed. First tier: ${UNIT_MANAGERS[facultyUnit].displayName}. Second tier: ${UNIT_MANAGERS[serviceUnit].displayName}.`,
+    confidence: 0.85,
+    reasoning: `Facility identified: ${UNIT_MANAGERS[facultyUnit].displayName}. Service unit: ${UNIT_MANAGERS[serviceUnit].displayName}.`
+  };
 }
+
 
 function appendComplaintHistory(complaint, status, note, actor) {
   complaint.history = complaint.history || [];
@@ -396,25 +716,81 @@ function updateComplaintStatus(complaint, status, note, actor) {
   appendComplaintHistory(complaint, status, note, actor);
 }
 
+function sendNotificationToUnit(unitId, notification) {
+  const unit = UNIT_MANAGERS[unitId];
+  if (!unit) {
+    console.warn(`⚠ Unknown unit: ${unitId}`);
+    return;
+  }
+
+  const message = {
+    id: `msg${genId()}`,
+    toId: unit.managerName,
+    toUnitId: unitId,
+    toEmail: unit.email,
+    fromId: 'system',
+    fromName: 'MUVIA System',
+    toName: unit.managerName,
+    type: notification.type,
+    priority: notification.priority || "normal",
+    subject: `MUVIA Notification: ${notification.type}`,
+    content: notification.message,
+    complaintId: notification.complaintId,
+    timestamp: new Date().toISOString(),
+    read: false
+  };
+
+  messages.push(message);
+  console.log(`📨 Notification sent → ${unit.displayName} (${unit.managerName}):  Type: ${notification.type}`);
+}
+
 async function routeComplaint(complaint) {
-  const llm = await llmComplaintRouting(complaint);
-  const decision = llm || heuristicComplaintRouting(complaint);
-  const owner = UNIT_MANAGERS[decision.unitKey] || UNIT_MANAGERS.General;
-  const facultyUnit = decision.facultyUnit || `${complaint.faculty || 'Fakülte'} Öğrenci İşleri`;
-  const confidence = typeof decision.confidence === 'number' ? decision.confidence : (llm ? 0.85 : 0.6);
-  const escalation = decision.escalationChain || [facultyUnit, owner.unit];
+  const result = await llmComplaintRouting(complaint);
+  if (!result) {
+    // Fallback: Route to faculty of engineering and IT
+    complaint.facultyUnit = "engineering_faculty";
+    complaint.serviceUnit = "bilgi_islem";
+    complaint.actionPlan = "Complaint could not be analyzed automatically, routed to default units.";
+    complaint.llmConfidence = 0.3;
+  } else {
+    complaint.facultyUnit = result.facultyUnit;
+    complaint.serviceUnit = result.serviceUnit;
+    complaint.actionPlan = result.actionPlan;
+    complaint.llmConfidence = result.confidence;
+  }
+
+  const faculty = UNIT_MANAGERS[complaint.facultyUnit];
+  const service = UNIT_MANAGERS[complaint.serviceUnit];
+  
+  complaint.facultyUnitDisplayName = faculty.displayName;
+  complaint.serviceUnitDisplayName = service.displayName;
+  complaint.routedTo = [faculty.displayName, service.displayName]; // Track routing chain
+  complaint.status = "triaged";
+  complaint.routedUnit = service.displayName;
+  complaint.managerName = service.managerName;
+
+  // Send FIRST notification to Faculty Administration
+  sendNotificationToUnit(complaint.facultyUnit, {
+    type: "new_complaint_received",
+    priority: "high",
+    message: `NEW COMPLAINT RECEIVED: "${complaint.subject}"\nStudent Email: ${complaint.studentEmail}\nDescription: ${complaint.description}\n\nThis complaint has been routed to your unit as the first tier administrator. Please acknowledge receipt and coordinate with the second tier unit: ${service.displayName}.`,
+    complaintId: complaint.id
+  });
+
+  // Send SECOND notification to Service Unit (after 1 second)
+  setTimeout(() => {
+    sendNotificationToUnit(complaint.serviceUnit, {
+      type: "new_complaint_routed",
+      priority: "high",
+      message: `COMPLAINT ROUTED TO YOUR UNIT: "${complaint.subject}"\nStudent Email: ${complaint.studentEmail}\nFirst Tier: ${faculty.displayName}\nDescription: ${complaint.description}\n\nAction Plan: ${complaint.actionPlan}\n\nPlease begin investigation and provide updates to the first tier unit.`,
+      complaintId: complaint.id
+    });
+  }, 1000);
+
   return {
-    routedUnitKey: decision.unitKey,
-    routedUnit: owner.unit,
-    facultyUnit: facultyUnit,
-    managerName: owner.manager,
-    priority: decision.priority || 'medium',
-    triageSummary: decision.summary || `Complaint analyzed and routed to ${facultyUnit} first, then to ${owner.unit}.`,
-    actionPlan: decision.actionPlan || [`Initial review — ${facultyUnit} notified.`, `Final responsible unit: ${owner.unit}`, 'Resolution tracking started.'],
-    escalationChain: escalation,
-    llmConfidence: confidence,
-    needsManualReview: confidence < 0.5,
-    routingSource: llm ? 'llm' : 'heuristic',
+    success: true,
+    message: `Complaint analyzed and routed successfully.\n1st Tier: ${faculty.displayName}\n2nd Tier: ${service.displayName}`,
+    routedTo: [faculty.displayName, service.displayName]
   };
 }
 
@@ -742,95 +1118,89 @@ app.get('/api/complaints/:studentId', (req, res) => {
   if (email) return res.json(complaints.filter((c) => c.studentEmail === email));
   res.json(complaints.filter((c) => c.studentId === req.params.studentId));
 });
-app.post('/api/complaints', (req, res) => {
+app.post('/api/complaints', async (req, res) => {
   const complaint = { id: `c${genId()}`, ...req.body, studentEmail: String(req.body.email || '').toLowerCase(), status: 'pending', submittedAt: new Date().toISOString(), lastUpdatedAt: new Date().toISOString(), response: '', respondedAt: '', respondedBy: '', history: [] };
   appendComplaintHistory(complaint, 'pending', 'Complaint received and added to triage queue.', 'System');
   complaints.push(complaint);
+  
+  // Route the complaint before sending response
+  await routeComplaint(complaint);
+  complaint.status = 'triaged';
+  updateComplaintStatus(complaint, 'triaged', `Complaint routed to ${UNIT_MANAGERS[complaint.serviceUnit].displayName}.`, 'Triage Engine');
+  
+  // Schedule the 'assigned' status update
+  setTimeout(() => updateComplaintStatus(complaint, 'assigned', `Processing started by ${UNIT_MANAGERS[complaint.serviceUnit].managerName}.`, UNIT_MANAGERS[complaint.serviceUnit].managerName), 2000);
+  
   try { saveState(); } catch (e) {}
-  routeComplaint(complaint).then((routing) => {
-    complaint.status = 'triaged';
-    Object.assign(complaint, routing);
-    updateComplaintStatus(complaint, 'triaged', `Complaint routed to ${routing.routedUnit}.`, 'Triage Engine');
-    setTimeout(() => updateComplaintStatus(complaint, 'assigned', `Processing started by ${routing.managerName}.`, routing.managerName), 1000);
-  });
   res.json({ success: true, complaint });
 });
-app.patch('/api/complaints/:id/feedback', (req, res) => {
+app.patch('/api/complaints/:id/feedback', async (req, res) => {
   const complaint = complaints.find((c) => c.id === req.params.id);
   if (!complaint) return res.status(404).json({ error: 'Complaint not found' });
-  complaint.rating = req.body.rating;
-  complaint.feedback = req.body.feedback;
-  // Record feedback in history
-  appendComplaintHistory(complaint, 'feedback_received', `Student rated resolution ${req.body.rating} stars. Note: ${String(req.body.feedback || '')}`, 'Student');
+  
+  const { rating, comment } = req.body;
+  const ratingInt = parseInt(rating);
+  complaint.feedback = { rating: ratingInt, comment, submittedAt: new Date().toISOString() };
+  
+  // Store feedback/comment in complaint history
+  const historyEntry = comment ? `Student feedback: ${ratingInt} stars. Comment: "${comment}"` : `Student feedback: ${ratingInt} stars`;
+  appendComplaintHistory(complaint, 'feedback_received', historyEntry, 'Student');
 
-  // Create an in-app message to student confirming receipt
-  const studentUser = ensureUser(complaint.studentEmail || complaint.email || '', 'student');
-  const confirmationMsg = {
-    id: `msg${genId()}`,
-    fromId: 'system',
-    toId: studentUser ? studentUser.id : complaint.studentId || 'unknown',
-    fromName: 'MUVIA System',
-    toName: studentUser ? studentUser.name : (complaint.studentName || 'Student'),
-    content: `Your feedback for request ${complaint.id} has been received. Thank you — the team will follow up.`,
-    timestamp: new Date().toISOString(),
-    read: false,
-  };
-  messages.push(confirmationMsg);
-
-  // If rating is 1, automatically escalate the issue
-  if (Number(req.body.rating) === 1) {
-    complaint.status = 'escalated';
-    appendComplaintHistory(complaint, 'escalated', 'Student indicated issue is not resolved (1-star rating). System automatically escalated for further intervention.', 'System AI');
+  if (ratingInt >= 3) {
+    // Positive feedback - mark as resolved
+    complaint.status = "resolved";
+    appendComplaintHistory(complaint, 'resolved', `Complaint resolved based on positive feedback (${ratingInt}/5 stars) from student.`, 'System');
     
-    // Notify higher admin
-    messages.push({
-      id: `msg${genId()}`, fromId: 'system', toId: 'admin', fromName: 'MUVIA AI', toName: 'Central Admin',
-      content: `CRITICAL: Complaint ${complaint.id} escalated due to 1-star feedback. Please review immediately.`,
-      timestamp: new Date().toISOString(), read: false
+    sendNotificationToUnit(complaint.facultyUnit, {
+      type: "positive_feedback",
+      priority: "normal",
+      message: `FEEDBACK: Complaint "${complaint.subject}" has been successfully resolved.\nStudent Rating: ${ratingInt}/5 stars\nStudent Comment: ${comment || 'No additional comment'}`,
+      complaintId: complaint.id
+    });
+  } else if (ratingInt < 3 && comment && comment.trim().length > 0) {
+    // Negative feedback with comment - escalate
+    complaint.status = "escalated";
+    appendComplaintHistory(complaint, 'escalated', `Complaint escalated to ${UNIT_MANAGERS[complaint.serviceUnit].displayName} due to student dissatisfaction (${ratingInt}/5 stars). Student Comment: "${comment}"`, 'System');
+    
+    // First notification to Faculty Unit (acknowledgment)
+    sendNotificationToUnit(complaint.facultyUnit, {
+      type: "feedback_received",
+      priority: "high",
+      message: `FEEDBACK RECEIVED from Student: Complaint "${complaint.subject}"\nStudent Rating: ${ratingInt}/5 stars (DISSATISFIED)\nStudent Comment: "${comment}"\n\nThis complaint is being escalated to the service unit for re-investigation.`,
+      complaintId: complaint.id
+    });
+
+    // Second notification to Service Unit (escalation request - after 1 second)
+    setTimeout(() => {
+      sendNotificationToUnit(complaint.serviceUnit, {
+        type: "escalation_required",
+        priority: "high",
+        message: `ESCALATION REQUIRED: Complaint "${complaint.subject}" has been escalated.\nStudent Rating: ${ratingInt}/5 stars (DISSATISFIED)\nStudent Comment: "${comment}"\nFirst Tier Unit: ${UNIT_MANAGERS[complaint.facultyUnit].displayName}\n\nPlease prioritize and re-investigate this issue immediately.`,
+        complaintId: complaint.id
+      });
+    }, 1000);
+  } else if (ratingInt < 3) {
+    // Negative feedback without comment
+    complaint.status = "closed";
+    appendComplaintHistory(complaint, 'closed', `Complaint closed after negative feedback (${ratingInt}/5 stars) from student with no additional comment.`, 'System');
+    
+    sendNotificationToUnit(complaint.facultyUnit, {
+      type: "negative_feedback",
+      priority: "normal",
+      message: `FEEDBACK: Complaint "${complaint.subject}" received negative feedback from student (${ratingInt}/5 stars). No additional comment provided. Complaint marked as closed.`,
+      complaintId: complaint.id
     });
   }
 
-  // Notify assigned unit / manager if exists
-  if (complaint.managerName || complaint.routedUnit) {
-    const unitMsg = {
-      id: `msg${genId()}`,
-      fromId: studentUser ? studentUser.id : complaint.studentId || 'student',
-      toId: complaint.managerName || complaint.routedUnit || 'admin',
-      fromName: studentUser ? studentUser.name : (complaint.studentName || 'Student'),
-      toName: complaint.managerName || complaint.routedUnit || 'Campus Admin',
-      content: `Feedback received for ${complaint.id}: ${req.body.rating} stars. Note: ${String(req.body.feedback || '')}. ${Number(req.body.rating) === 1 ? 'ISSUE MARKED AS UNRESOLVED.' : ''}`,
-      timestamp: new Date().toISOString(),
-      read: false,
-    };
-    messages.push(unitMsg);
-  }
-
-  // If student explicitly chose escalate, mark escalated
-  if (req.body.action === 'escalate') {
-    updateComplaintStatus(complaint, 'escalated', 'Student marked issue as unresolved. Escalated to higher administration.', 'System');
-  }
-
-  // If rating is 1 (very poor), re-open the complaint for further action
-  if (Number(req.body.rating) === 1) {
-    complaint.needsManualReview = true;
-    updateComplaintStatus(complaint, 'in-progress', 'Reopened due to low satisfaction (1 star). Please re-investigate and propose corrective actions.', 'Student Feedback Engine');
-    // notify admin team as an urgent message
-    const urgent = {
-      id: `msg${genId()}`,
-      fromId: 'system',
-      toId: 'Campus Admin',
-      fromName: 'MUVIA System',
-      toName: 'Campus Admin',
-      content: `URGENT: Complaint ${complaint.id} was rated 1★ by the student and has been reopened for immediate attention.`,
-      timestamp: new Date().toISOString(),
-      read: false,
-    };
-    messages.push(urgent);
-  }
-
   try { saveState(); } catch (e) {}
-  res.json({ success: true, complaint });
+  res.json({ 
+    success: true, 
+    message: ratingInt >= 3 ? "Thank you for your feedback. The complaint has been marked as resolved." : "Your feedback has been recorded. If escalated, relevant units will be notified.",
+    status: complaint.status,
+    history: complaint.history
+  });
 });
+
 app.get('/api/admin/complaints', (_req, res) => res.json([...complaints].sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))));
 app.get('/api/admin/complaints/queue', (_req, res) => res.json(complaints.filter((c) => c.needsManualReview || c.status === 'pending' || c.status === 'triaged')));
 app.patch('/api/admin/complaints/:id/assign', (req, res) => {
@@ -848,7 +1218,28 @@ app.patch('/api/admin/complaints/:id/status', (req, res) => {
   if (!complaint) return res.status(404).json({ error: 'Complaint not found' });
   const status = req.body.status;
   if (!COMPLAINT_STATUSES.includes(status)) return res.status(400).json({ error: 'Invalid status' });
+  
   updateComplaintStatus(complaint, status, req.body.note || `Status updated to ${status}.`, req.body.actor || 'Campus Admin');
+  
+  // Send notification only if status is escalated
+  if (status === 'escalated') {
+    console.log(`📊 Admin escalation for complaint ${complaint.id}`);
+    console.log(`   Service unit ID: ${complaint.serviceUnit}`);
+    console.log(`   Service unit display: ${complaint.serviceUnitDisplayName}`);
+    
+    if (complaint.serviceUnit) {
+      sendNotificationToUnit(complaint.serviceUnit, {
+        type: "admin_escalation",
+        priority: "high",
+        message: `ESCALATION FROM ADMIN: Complaint "${complaint.subject}" has been marked as escalated by the system admin.\nDescription: ${complaint.description}\n\nPlease prioritize and provide an update on this case.`,
+        complaintId: complaint.id
+      });
+      console.log(`✓ Escalation notification sent to ${complaint.serviceUnitDisplayName}`);
+    } else {
+      console.warn(`⚠ No service unit found for complaint ${complaint.id}`);
+    }
+  }
+  
   try { saveState(); } catch (e) {}
   res.json({ success: true, complaint });
 });

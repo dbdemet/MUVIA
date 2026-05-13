@@ -1,0 +1,378 @@
+{
+  "posted": {
+    "success": true,
+    "complaint": {
+      "id": "cid1001",
+      "subject": "Test: wifi outage at Department Of Informatics",
+      "description": "wifi outage and connection loss at Department Of Informatics",
+      "email": "posttest@posta.mu.edu.tr",
+      "studentEmail": "posttest@posta.mu.edu.tr",
+      "status": "triaged",
+      "submittedAt": "2026-05-10T18:45:59.723Z",
+      "lastUpdatedAt": "2026-05-10T18:45:59.725Z",
+      "response": "",
+      "respondedAt": "",
+      "respondedBy": "",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T18:45:59.723Z"
+        },
+        {
+          "status": "routing",
+          "note": "Routed: Dean's Office of Technology -> Department of IT Services",
+          "actor": "Routing Engine",
+          "at": "2026-05-10T18:45:59.725Z"
+        }
+      ],
+      "facultyUnit": "technology_faculty",
+      "facultyUnitDisplayName": "Department of Informatics Administration",
+      "serviceUnit": "bilgi_islem",
+      "serviceUnitDisplayName": "Department of IT Services",
+      "actionPlan": "Forward to Department of Informatics Administration then to Department of IT Services for resolution.",
+      "llmConfidence": 0.95,
+      "assignedTo": "Head of IT Department",
+      "routedUnit": "Department of IT Services",
+      "managerName": "Head of IT Department"
+    }
+  },
+  "comps": [
+    {
+      "id": "cid1001",
+      "subject": "Test: wifi outage at Department Of Informatics",
+      "description": "wifi outage and connection loss at Department Of Informatics",
+      "email": "posttest@posta.mu.edu.tr",
+      "studentEmail": "posttest@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-10T18:45:59.723Z",
+      "lastUpdatedAt": "2026-05-10T18:46:00.728Z",
+      "response": "Processing started by undefined.",
+      "respondedAt": "2026-05-10T18:46:00.728Z",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T18:45:59.723Z"
+        },
+        {
+          "status": "routing",
+          "note": "Routed: Dean's Office of Technology -> Department of IT Services",
+          "actor": "Routing Engine",
+          "at": "2026-05-10T18:45:59.725Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to undefined.",
+          "actor": "Triage Engine",
+          "at": "2026-05-10T18:45:59.727Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by undefined.",
+          "at": "2026-05-10T18:46:00.728Z"
+        }
+      ],
+      "facultyUnit": "technology_faculty",
+      "facultyUnitDisplayName": "Department of Informatics Administration",
+      "serviceUnit": "bilgi_islem",
+      "serviceUnitDisplayName": "Department of IT Services",
+      "actionPlan": "Forward to Department of Informatics Administration then to Department of IT Services for resolution.",
+      "llmConfidence": 0.95,
+      "assignedTo": "Head of IT Department",
+      "routedUnit": "Department of IT Services",
+      "managerName": "Head of IT Department",
+      "success": true,
+      "message": "Your complaint has been analyzed.\nRouting chain: Dean's Office of Technology -> Department of IT Services\nForward to Department of Informatics Administration then to Department of IT Services for resolution."
+    },
+    {
+      "id": "cid1003",
+      "subject": "WiFi issue: internet connection loss at Department Of Informatics",
+      "description": "WiFi issue in Department Of Informatics",
+      "email": "test2@posta.mu.edu.tr",
+      "studentEmail": "test2@posta.mu.edu.tr",
+      "status": "pending",
+      "submittedAt": "2026-05-10T18:39:54.538Z",
+      "lastUpdatedAt": "2026-05-10T18:39:54.538Z",
+      "response": "",
+      "respondedAt": "",
+      "respondedBy": "",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T18:39:54.538Z"
+        }
+      ]
+    },
+    {
+      "id": "cid1001",
+      "subject": "There is a bad smell in Faculty of Engineering",
+      "description": "There is a bad smell in Faculty of Engineering.",
+      "email": "test1@posta.mu.edu.tr",
+      "studentEmail": "test1@posta.mu.edu.tr",
+      "status": "triaged",
+      "submittedAt": "2026-05-10T18:39:54.523Z",
+      "lastUpdatedAt": "2026-05-10T18:39:54.527Z",
+      "response": "Complaint routed to undefined.",
+      "respondedAt": "2026-05-10T18:39:54.527Z",
+      "respondedBy": "Triage Engine",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T18:39:54.523Z"
+        },
+        {
+          "status": "routing",
+          "note": "Routed: Dean's Office of Engineering -> Dept. of Construction and Technical Services",
+          "actor": "Routing Engine",
+          "at": "2026-05-10T18:39:54.525Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to undefined.",
+          "actor": "Triage Engine",
+          "at": "2026-05-10T18:39:54.527Z"
+        }
+      ],
+      "facultyUnit": "engineering_faculty",
+      "facultyUnitDisplayName": "Faculty of Engineering Administration",
+      "serviceUnit": "yapi_isleri",
+      "serviceUnitDisplayName": "Dept. of Construction and Technical Services",
+      "actionPlan": "Forward to Faculty of Engineering Administration then to Dept. of Construction and Technical Services for resolution.",
+      "llmConfidence": 0.95,
+      "assignedTo": "Head of Technical Services",
+      "routedUnit": "Dept. of Construction and Technical Services",
+      "managerName": "Head of Technical Services",
+      "success": true,
+      "message": "Your complaint has been analyzed.\nRouting chain: Dean's Office of Engineering -> Dept. of Construction and Technical Services\nForward to Faculty of Engineering Administration then to Dept. of Construction and Technical Services for resolution."
+    },
+    {
+      "id": "cid1004",
+      "subject": "WiFi issue: internet connection loss at Department Of Informatics",
+      "description": "WiFi issue: internet connection loss at Department Of Informatics",
+      "email": "student2@posta.mu.edu.tr",
+      "studentEmail": "student2@posta.mu.edu.tr",
+      "status": "pending",
+      "submittedAt": "2026-05-10T18:30:03.598Z",
+      "lastUpdatedAt": "2026-05-10T18:30:03.598Z",
+      "response": "",
+      "respondedAt": "",
+      "respondedBy": "",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T18:30:03.598Z"
+        }
+      ]
+    },
+    {
+      "id": "cid1003",
+      "subject": "There is a bad smell in Faculty of Engineering",
+      "description": "There is a bad smell in Faculty of Engineering.",
+      "email": "student1@posta.mu.edu.tr",
+      "studentEmail": "student1@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-10T18:29:53.793Z",
+      "lastUpdatedAt": "2026-05-10T18:29:54.809Z",
+      "response": "Processing started by undefined.",
+      "respondedAt": "2026-05-10T18:29:54.809Z",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T18:29:53.793Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to undefined.",
+          "actor": "Triage Engine",
+          "at": "2026-05-10T18:29:53.797Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by undefined.",
+          "at": "2026-05-10T18:29:54.809Z"
+        }
+      ],
+      "facultyUnit": "rectorate",
+      "serviceUnit": "idari_mali",
+      "actionPlan": "Complaint could not be analyzed automatically, routed to general administration.",
+      "llmConfidence": 0.3,
+      "facultyUnitDisplayName": "Rectorate Office",
+      "serviceUnitDisplayName": "Department of Administrative and Financial Affairs",
+      "assignedTo": "Head of Admin Affairs",
+      "routedUnit": "Department of Administrative and Financial Affairs",
+      "managerName": "Head of Admin Affairs",
+      "success": true,
+      "message": "Your complaint has been analyzed.\nFirst tier: Rectorate Office\nSecond tier: Department of Administrative and Financial Affairs\nComplaint could not be analyzed automatically, routed to general administration."
+    },
+    {
+      "id": "cid1002",
+      "studentId": "s-demetbolat",
+      "studentName": "Demetbolat",
+      "faculty": "Faculty of Education",
+      "category": "General",
+      "subject": "wifi issue",
+      "description": "there is a bad internet connection in Faculty of Enginering B2B07 lab.",
+      "email": "demetbolat2@posta.mu.edu.tr",
+      "studentEmail": "demetbolat2@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-10T18:16:59.851Z",
+      "lastUpdatedAt": "2026-05-10T18:17:00.861Z",
+      "response": "Processing started by undefined.",
+      "respondedAt": "2026-05-10T18:17:00.861Z",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T18:16:59.851Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to undefined.",
+          "actor": "Triage Engine",
+          "at": "2026-05-10T18:16:59.856Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by undefined.",
+          "at": "2026-05-10T18:17:00.861Z"
+        }
+      ],
+      "facultyUnit": "rectorate",
+      "serviceUnit": "idari_mali",
+      "actionPlan": "Complaint could not be analyzed automatically, routed to general administration.",
+      "llmConfidence": 0.3,
+      "facultyUnitDisplayName": "Rectorate Office",
+      "serviceUnitDisplayName": "Department of Administrative and Financial Affairs",
+      "assignedTo": "Head of Admin Affairs",
+      "routedUnit": "Department of Administrative and Financial Affairs",
+      "managerName": "Head of Admin Affairs",
+      "success": true,
+      "message": "Your complaint has been analyzed.\nFirst tier: Rectorate Office\nSecond tier: Department of Administrative and Financial Affairs\nComplaint could not be analyzed automatically, routed to general administration."
+    },
+    {
+      "id": "cid1003",
+      "studentId": "s-theojames",
+      "studentName": "Theojames",
+      "faculty": "Faculty of Science",
+      "category": "General",
+      "subject": "wifi issue",
+      "description": "loss of the internet in the Faculty of Literature.",
+      "email": "theojames@posta.mu.edu.tr",
+      "studentEmail": "theojames@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-10T00:14:38.692Z",
+      "lastUpdatedAt": "2026-05-10T00:14:39.698Z",
+      "response": "Processing started by undefined.",
+      "respondedAt": "2026-05-10T00:14:39.698Z",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T00:14:38.693Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to undefined.",
+          "actor": "Triage Engine",
+          "at": "2026-05-10T00:14:38.695Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by undefined.",
+          "at": "2026-05-10T00:14:39.698Z"
+        }
+      ],
+      "facultyUnit": "rectorate",
+      "serviceUnit": "idari_mali",
+      "actionPlan": "Complaint could not be analyzed automatically, routed to general administration.",
+      "llmConfidence": 0.3,
+      "facultyUnitDisplayName": "Rectorate Office",
+      "serviceUnitDisplayName": "Department of Administrative and Financial Affairs",
+      "assignedTo": "Head of Admin Affairs",
+      "routedUnit": "Department of Administrative and Financial Affairs",
+      "managerName": "Head of Admin Affairs",
+      "success": true,
+      "message": "Your complaint has been analyzed.\nFirst tier: Rectorate Office\nSecond tier: Department of Administrative and Financial Affairs\nComplaint could not be analyzed automatically, routed to general administration."
+    },
+    {
+      "id": "cid1002",
+      "studentId": "s-demetbolat",
+      "studentName": "Demetbolat",
+      "faculty": "Faculty of Education",
+      "category": "General",
+      "subject": "Bad smell",
+      "description": "There is a bad smell 2nd floor on Faculty of Engineering ",
+      "email": "demetbolat2@posta.mu.edu.tr",
+      "studentEmail": "demetbolat2@posta.mu.edu.tr",
+      "status": "assigned",
+      "submittedAt": "2026-05-10T00:01:53.630Z",
+      "lastUpdatedAt": "2026-05-10T00:01:54.637Z",
+      "response": "Processing started by undefined.",
+      "respondedAt": "2026-05-10T00:01:54.637Z",
+      "history": [
+        {
+          "status": "pending",
+          "note": "Complaint received and added to triage queue.",
+          "actor": "System",
+          "at": "2026-05-10T00:01:53.630Z"
+        },
+        {
+          "status": "triaged",
+          "note": "Complaint routed to undefined.",
+          "actor": "Triage Engine",
+          "at": "2026-05-10T00:01:53.633Z"
+        },
+        {
+          "status": "assigned",
+          "note": "Processing started by undefined.",
+          "at": "2026-05-10T00:01:54.637Z"
+        }
+      ],
+      "facultyUnit": "rectorate",
+      "serviceUnit": "idari_mali",
+      "actionPlan": "Complaint could not be analyzed automatically, routed to general administration.",
+      "llmConfidence": 0.3,
+      "facultyUnitDisplayName": "Rectorate Office",
+      "serviceUnitDisplayName": "Department of Administrative and Financial Affairs",
+      "assignedTo": "Head of Admin Affairs",
+      "routedUnit": "Department of Administrative and Financial Affairs",
+      "managerName": "Head of Admin Affairs",
+      "success": true,
+      "message": "Your complaint has been analyzed.\nFirst tier: Rectorate Office\nSecond tier: Department of Administrative and Financial Affairs\nComplaint could not be analyzed automatically, routed to general administration."
+    }
+  ],
+  "messages": {
+    "head_it": [
+      {
+        "id": "msgid1003",
+        "toId": "Head of IT Department",
+        "toUnitId": "bilgi_islem",
+        "toEmail": "bilgiislem@msku.edu.tr",
+        "fromId": "system",
+        "fromName": "MUVIA System",
+        "toName": "Head of IT Department",
+        "type": "routing",
+        "priority": "normal",
+        "subject": "MUVIA Bildirim: routing",
+        "content": "Complaint escalated to your unit: Test: wifi outage at Department Of Informatics",
+        "complaintId": "cid1001",
+        "timestamp": "2026-05-10T18:46:00.241Z",
+        "read": false
+      }
+    ],
+    "head_technical": []
+  }
+}
